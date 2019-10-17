@@ -471,7 +471,7 @@ public class SettingsPanel extends JPanel {
 				bingo_props.getProperty("ontology_file_def"));
 
 		// Creating SettingsSavePanels.
-		dataPanel = new SaveResultsPanel("Data", this, bingoDir);
+		dataPanel = new SaveResultsPanel("data", this, bingoDir);
 
 		// the bingo-button to start the calculations.
 		bingoButton = new JButton("Start BiNGO");

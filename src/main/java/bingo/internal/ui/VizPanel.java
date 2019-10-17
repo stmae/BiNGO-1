@@ -89,7 +89,7 @@ public class VizPanel extends JPanel implements ActionListener {
     private Icon checked = new ToggleIcon(true);
 
     private static String VIZSTRING = "Visualization";
-    private static String NOVIZSTRING = "No Visualization";
+    private static String NOVIZSTRING = "No visualization";
 
     /*private final int DIM_WIDTH = 500 ;
 private final int DIM_HEIGHT = 200 ;*/

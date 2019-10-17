@@ -56,6 +56,7 @@ public class BingoPluginAction extends AbstractCyAction {
 		// Cytoscape Main Window
 		final JFrame desktop = adapter.getCySwingApplication().getJFrame();
 		window.setLocationRelativeTo(desktop);
+		window.setResizable(false);
 		window.setVisible(true);
 	}
 }

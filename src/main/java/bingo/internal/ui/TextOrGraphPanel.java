@@ -92,8 +92,8 @@ public class TextOrGraphPanel extends JPanel implements ActionListener {
      */
     private JTextArea textInputArea;
 
-    private static String GRAPHSTRING = "Get Cluster from Network";
-    private static String TEXTSTRING = "Paste Genes from Text";
+    private static String GRAPHSTRING = "Get cluster from network";
+    private static String TEXTSTRING = "Paste genes from text";
 
     /*private final int DIM_WIDTH = 500 ;
 private final int DIM_HEIGHT = 200 ;*/
@@ -150,7 +150,6 @@ private final int DIM_HEIGHT = 200 ;*/
     /**
      * Method that creates the JComponents.
      *
-     * @param sort string that denotes part of the name of the button.
      */
     public void makeJComponents() {
 
@@ -178,14 +177,14 @@ private final int DIM_HEIGHT = 200 ;*/
 
         //JTextArea
         textInputArea = new JTextArea(1000, 500);
+        textInputArea.setEditable(false);
+        textInputArea.setEnabled(false);
         scrollPane = new JScrollPane(textInputArea,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        textInputArea.setEditable(false);
-        textInputArea.setEnabled(false);
+        scrollPane.setEnabled(false);
 
         //Put the radio buttons in a row in a panel.
-
         radioPanel = new JPanel(new GridLayout(1, 0));
         radioPanel.add(graphButton);
         radioPanel.add(textButton);
@@ -219,16 +218,18 @@ private final int DIM_HEIGHT = 200 ;*/
     /**
      * Method performed when radiobutton clicked.
      *
-     * @param event event that triggers action, here clicking of the button.
+     * @param e event that triggers action, here clicking of the button.
      */
 
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(TEXTSTRING)) {
             textInputArea.setEnabled(true);
             textInputArea.setEditable(true);
+            scrollPane.setEnabled(true);
         } else {
             textInputArea.setEnabled(false);
             textInputArea.setEditable(false);
+            scrollPane.setEnabled(false);
         }
     }
 
