@@ -90,9 +90,9 @@ public class AnnotationParser extends BingoTask {
 	private BingoParameters params;
 	private Set<String> genes;
 	/**
-	 * boolean loading correctly ?
+	 * boolean loading/parsing correctly ?
 	 */
-	private boolean status = true;
+	private boolean parsingStatusOK = true;
 	/**
 	 * true if found annotation categories which are not in ontology
 	 */
@@ -100,7 +100,7 @@ public class AnnotationParser extends BingoTask {
 	/**
 	 * false if none of the categories in the annotation match the ontology
 	 */
-	private boolean consistency = false;
+	private boolean annotationConsistent = false;
 
 	// Keep track of progress for monitoring:
 	private int maxValue;
@@ -134,143 +134,142 @@ public class AnnotationParser extends BingoTask {
 	 * 
 	 */
 	public void calculate() throws Exception {
-		if(taskMonitor != null)
+		if (taskMonitor != null)
 			taskMonitor.setTitle("Parsing Annotation");
 
-		if (!params.isOntology_default()) {
-			// always perform full remap for .obo files, allows definition of
-			// custom GOSlims
-			if (params.getOntologyFile().endsWith(".obo")) {
-				String loadFullOntologyString = setFullOntology();
-				if (!loadFullOntologyString.equals(LOADCORRECT)) {
-					status = false;
-					// System.out.println("Your full ontology file contains errors "
-					// + loadFullOntologyString);
-                    throw new Exception("Error: could not load ontology file: " + loadFullOntologyString);
-				}
-				if (status == true) {
-					// check for cycles
-					checkOntology(fullOntology);
-				}
-			} else{
-                throw new Exception("Error: ontology file must have .obo file extension.");
+        if (params.isOntology_default()) {
+            // load full ontology for full remap to GOSlim ontologies, and for
+            // defining synonymHash
+            loadFullOntology();
+
+            if (parsingStatusOK) {
+                loadDefaultOntology();
+
+                if (parsingStatusOK) {
+                    loadAnnotation();
+
+                    if (parsingStatusOK) {
+                        // full remap not needed for non-Slim ontologies,
+                        // instead custom remap
+                        // bug 20/9/2005 changed annotationPanel to
+                        // ontologyPanel
+                        if (params.getOntologyFile().equals(fullGoPath) ||
+                            params.getOntologyFile().equals(processGoPath) ||
+                            params.getOntologyFile().equals(functionGoPath) ||
+                            params.getOntologyFile().equals(componentGoPath))
+                        {
+                            parsedAnnotation = customRemap(annotation, ontology, genes);
+                        }
+                        // full remap for Slim Ontologies
+                        else {
+                            parsedAnnotation = remap(annotation, ontology, genes);
+                        }
+                    }
+                }
+            }
+        } else {
+            // always perform full remap for .obo files, allows definition of
+            // custom GOSlims
+            if (params.getOntologyFile().endsWith(".obo")) {
+                loadFullOntology();
             }
 
-			if (status == true) {
-				String loadOntologyString = setCustomOntology();
+            if (parsingStatusOK) {
+                loadCustomOntology();
 
-				// loaded a correct ontology file?
-				if (!loadOntologyString.equals(LOADCORRECT)) {
-					status = false;
-					// System.out.println("Your ontology file contains errors "
-					// + loadOntologyString);
-                    throw new Exception("Error: could not load ontology file: " + loadOntologyString);
-				}
-				if (status == true) {
-					// check for cycles
-					checkOntology(ontology);
-					if (status == true) {
-						String loadAnnotationString;
-						if (!params.isAnnotation_default()) {
-							loadAnnotationString = setCustomAnnotation();
-						} else {
-							loadAnnotationString = setDefaultAnnotation();
-						}
+                if (parsingStatusOK) {
+                    loadAnnotation();
 
-						// loaded a correct annotation file?
-						if (!loadAnnotationString.equals(LOADCORRECT)) {
-							status = false;
-							// System.out.println("Your annotation file contains errors "
-							// + loadAnnotationString);
-                            throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
-						}
-						// annotation consistent with ontology ?
-						if ((status == true) && (consistency == false)) {
-							status = false;
-                            throw new Exception("Error: none of the labels in your annotation match with the chosen "
-                                                + "ontology, please check their compatibility.");
-						}
-						if (status == true) {
-							if (params.getOntologyFile().endsWith(".obo")) {
-								parsedAnnotation = remap(annotation, ontology, genes);
-							} else {
-								parsedAnnotation = customRemap(annotation, ontology, genes);
-							}
-						}
-					}
-				}
-			}
-		} else {
-			String loadAnnotationString;
-			// load full ontology for full remap to GOSlim ontologies, and for
-			// defining synonymHash
-			String loadFullOntologyString = setFullOntology();
-			if (!loadFullOntologyString.equals(LOADCORRECT)) {
-				status = false;
-				// System.out.println("Your full ontology file contains errors "
-				// + loadFullOntologyString);
-                throw new Exception("Error: could not load ontology file: " + loadFullOntologyString);
-			}
-			if (status == true) {
-				// check for cycles
-				checkOntology(fullOntology);
-			}
-			if (status == true) {
-				String loadOntologyString = setDefaultOntology(synonymHash);
-				if (!loadOntologyString.equals(LOADCORRECT)) {
-					status = false;
-					// System.out.println(loadOntologyString);
-                    throw new Exception("Error: could not load ontology file: " + loadOntologyString);
-				}
-				if (status == true) {
-					// check for cycles
-					checkOntology(ontology);
-					if (status == true) {
-						if (!params.isAnnotation_default()) {
-							loadAnnotationString = setCustomAnnotation();
-						} else {
-							loadAnnotationString = setDefaultAnnotation();
-						}
+                    if (parsingStatusOK) {
+                        if (params.getOntologyFile().endsWith(".obo")) {
+                            parsedAnnotation = remap(annotation, ontology, genes);
+                        } else {
+                            parsedAnnotation = customRemap(annotation, ontology, genes);
+                        }
+                    }
+                }
+            }
+        }
 
-						// loaded a correct annotation file?
-						if (!loadAnnotationString.equals(LOADCORRECT)) {
-							status = false;
-							// System.out.println(loadAnnotationString);
-                            throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
-						}
-
-						if ((status == true) && (consistency == false)) {
-							status = false;
-                            throw new Exception("Error: none of the labels in your annotation match with the chosen "
-                                                + "ontology, please check their compatibility.");
-						}
-
-						if (status == true) {
-							// full remap not needed for non-Slim ontologies,
-							// instead custom remap
-							// bug 20/9/2005 changed annotationPanel to
-							// ontologyPanel
-							if (params.getOntologyFile().equals(fullGoPath)
-									|| params.getOntologyFile().equals(processGoPath)
-									|| params.getOntologyFile().equals(functionGoPath)
-									|| params.getOntologyFile().equals(componentGoPath)) {
-								parsedAnnotation = customRemap(annotation, ontology, genes);
-							}
-							// full remap for Slim Ontologies
-							else {
-								parsedAnnotation = remap(annotation, ontology, genes);
-							}
-						}
-					}
-				}
-			}
-		}
-        if (status == false) {
+        if (!parsingStatusOK) {
             throw new Exception("Failed loading or parsing annotation.");
         }
 	}
 
-	/**
+    private void loadFullOntology() throws Exception {
+        taskMonitor.setStatusMessage("loading full ontology");
+        String loadFullOntologyString = setFullOntology();
+
+        if (!loadFullOntologyString.equals(LOADCORRECT)) {
+            parsingStatusOK = false;
+            // System.out.println("Your full ontology file contains errors " + loadFullOntologyString);
+            throw new Exception("Error: could not load ontology file: " + loadFullOntologyString);
+        }
+
+        if (parsingStatusOK) {
+            // check for cycles
+            checkOntology(fullOntology);
+        }
+    }
+
+    private void loadDefaultOntology() throws Exception {
+        taskMonitor.setStatusMessage("loading default ontology");
+        String loadOntologyString = setDefaultOntology(synonymHash);
+
+        if (!loadOntologyString.equals(LOADCORRECT)) {
+            parsingStatusOK = false;
+            // System.out.println(loadOntologyString);
+            throw new Exception("Error: could not load default ontology file: " + loadOntologyString);
+        }
+
+        if (parsingStatusOK) {
+            // check for cycles
+            checkOntology(fullOntology);
+        }
+    }
+
+    private void loadCustomOntology() throws Exception {
+        taskMonitor.setStatusMessage("loading custom ontology");
+        String loadOntologyString = setCustomOntology();
+
+        // loaded a correct ontology file?
+        if (!loadOntologyString.equals(LOADCORRECT)) {
+            parsingStatusOK = false;
+            // System.out.println("Your ontology file contains errors " + loadOntologyString);
+            throw new Exception("Error: could not load custom ontology file: " + loadOntologyString);
+        }
+
+        if (parsingStatusOK) {
+            // check for cycles
+            checkOntology(fullOntology);
+        }
+    }
+
+    private void loadAnnotation() throws Exception {
+        String loadAnnotationString;
+        if (params.isAnnotation_default()) {
+            taskMonitor.setStatusMessage("loading default annotation");
+            loadAnnotationString = setDefaultAnnotation();
+        } else {
+            taskMonitor.setStatusMessage("loading custom annotation");
+            loadAnnotationString = setCustomAnnotation();
+        }
+
+        // loaded a correct annotation file?
+        if (!loadAnnotationString.equals(LOADCORRECT)) {
+            parsingStatusOK = false;
+            // System.out.println(loadAnnotationString);
+            throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
+        }
+
+        if ((parsingStatusOK) && (!annotationConsistent)) {
+            parsingStatusOK = false;
+            throw new Exception("Error: none of the labels in your annotation match with the chosen ontology, " +
+                                "please check their compatibility.");
+        }
+    }
+
+    /**
 	 * Method that parses the custom annotation file into an annotation-object
 	 * and returns a string containing whether the operation is correct or not.
 	 * 
@@ -294,7 +293,7 @@ public class AnnotationParser extends BingoTask {
 					orphansFound = true;
 				}
 				if (readerAnnotation.getConsistency()) {
-					consistency = true;
+                    annotationConsistent = true;
 				}
 				alias = readerAnnotation.getAlias();
 				resultString = LOADCORRECT;
@@ -316,7 +315,7 @@ public class AnnotationParser extends BingoTask {
 					orphansFound = true;
 				}
 				if (readerAnnotation.getConsistency()) {
-					consistency = true;
+                    annotationConsistent = true;
 				}
 				alias = readerAnnotation.getAlias();
 				resultString = LOADCORRECT;
@@ -353,7 +352,7 @@ public class AnnotationParser extends BingoTask {
 				orphansFound = true;
 			}
 			if (readerAnnotation.getConsistency()) {
-				consistency = true;
+                annotationConsistent = true;
 			}
 			alias = readerAnnotation.getAlias();
 			resultString = LOADCORRECT;
@@ -503,6 +502,8 @@ public class AnnotationParser extends BingoTask {
 	}
 
 	private void checkOntology(Ontology ontology) throws IOException {
+        taskMonitor.setStatusMessage("checking ontology for cycles");
+
 		HashMap ontMap = ontology.getTerms();
 		Iterator it = ontMap.keySet().iterator();
 		while (it.hasNext()) {
@@ -567,7 +568,7 @@ public class AnnotationParser extends BingoTask {
 				}
 			}
 			if (cancelled) {
-				status = false;
+                parsingStatusOK = false;
 				throw new InterruptedException();
 			}
 		}
@@ -631,7 +632,7 @@ public class AnnotationParser extends BingoTask {
 				}
 			}
 			if (cancelled) {
-				status = false;
+                parsingStatusOK = false;
 				throw new InterruptedException();
 			}
 		}
@@ -671,7 +672,7 @@ public class AnnotationParser extends BingoTask {
 		int[] parents = child.getParentsAndContainers();
 		for (int t = 0; t < parents.length; t++) {
 			if (parents[t] == startID) {
-				status = false;
+                parsingStatusOK = false;
 				throw new IOException("Your ontology file contains a cycle at ID " + startID);
 			} else if (!parentsSet.contains(parents[t])) {
 				if (ontology.getTerm(parents[t]) != null) {
@@ -706,14 +707,14 @@ public class AnnotationParser extends BingoTask {
 	 * @return true if there are categories in the annotation which are not
 	 *         found in the ontology
 	 */
-	public boolean getOrphans() {
+	public boolean hasOrphans() {
 		return orphansFound;
 	}
 	
 	/**
-	 * @return the parser status : true if OK, false if something's wrong
+	 * @return the parser parsingStatusOK : true if OK, false if something's wrong
 	 */
-	public boolean getStatus() {
-		return status;
+	public boolean isParsingStatusOK() {
+		return parsingStatusOK;
 	}
 }

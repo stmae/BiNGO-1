@@ -605,11 +605,11 @@ public class SettingsPanelActionListener implements ActionListener {
 			System.out.println("\nCalling annotation parser...");
 			syncTaskManager.execute(new GenericTaskFactory(annParser).createTaskIterator()); 
 			System.out.println("Calling annotation parser...DONE!!");
-			if (annParser.getStatus()) {
+			if (annParser.isParsingStatusOK()) {
 				params.setAnnotation(annParser.getAnnotation());
 				params.setOntology(annParser.getOntology());
 				params.setAlias(annParser.getAlias());
-				if (annParser.getOrphans()) {
+				if (annParser.hasOrphans()) {
 					JOptionPane.showMessageDialog(settingsPanel,
 							"WARNING : Some category labels in the annotation file" + "\n"
 									+ "are not defined in the ontology. Please check the compatibility of" + "\n"
