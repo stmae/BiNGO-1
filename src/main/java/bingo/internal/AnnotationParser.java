@@ -224,7 +224,7 @@ public class AnnotationParser extends BingoTask {
 
         if (parsingStatusOK) {
             // check for cycles
-            checkOntology(fullOntology);
+            checkOntology(ontology);
         }
     }
 
@@ -241,7 +241,7 @@ public class AnnotationParser extends BingoTask {
 
         if (parsingStatusOK) {
             // check for cycles
-            checkOntology(fullOntology);
+            checkOntology(ontology);
         }
     }
 
