@@ -111,7 +111,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 	 * @throws InterruptedException
 	 */
 	public void calculate() throws InterruptedException {
-		if(taskMonitor != null)
+		if (taskMonitor != null)
 			taskMonitor.setTitle("Calculating Hypergeometric Distribution");
 		
 		HypergeometricDistributionUnder hd;
@@ -124,37 +124,34 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 		Integer smallNvalue;
 		Integer bigXvalue;
 		Integer bigNvalue;
+		int onePercentOfMaxValue = maxValue / 100;
 		int currentProgress = 0;
 		while (iterator.hasNext()) {
+			currentProgress++;
+			// Update the Task Monitor.
+			// This automatically updates the UI Component w/ progress bar.
+			if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+				taskMonitor.setStatusMessage("calculating hypergeometric p-value " + currentProgress + " of "
+											 + maxValue);
+				// Calculate percentage, must be a value between 0..1.
+				double percentComplete = (double) currentProgress / maxValue;
+				taskMonitor.setProgress(percentComplete);
+			}
+
 			id = new Integer(iterator.next().toString());
 			smallXvalue = new Integer(mapSmallX.get(id).toString());
 			smallNvalue = new Integer(mapSmallN.get(id).toString());
 			bigXvalue = new Integer(mapBigX.get(id).toString());
 			bigNvalue = new Integer(mapBigN.get(id).toString());
-			hd = new HypergeometricDistributionUnder(smallXvalue.intValue(), bigXvalue.intValue(),
-					smallNvalue.intValue(), bigNvalue.intValue());
+			hd = new HypergeometricDistributionUnder(smallXvalue, bigXvalue, smallNvalue, bigNvalue);
 			hypergeometricTestMap.put(id, hd.calculateHypergDistr());
-
-			// Calculate Percentage. This must be a value between 0..1.
-			int percentComplete = (int) (((double) currentProgress / maxValue));
-
-			// Estimate Time Remaining
-			long timeRemaining = maxValue - currentProgress;
-
-			// Update the Task Monitor. This automatically updates the UI
-			// Component w/ progress bar.
-			if (taskMonitor != null) {
-				taskMonitor.setProgress(percentComplete);
-				taskMonitor.setStatusMessage("Calculating Hypergeometric P-value: " + currentProgress + " of "
-						+ maxValue);
-			}
-
-			currentProgress++;
 
 			if (cancelled) {
 				throw new InterruptedException("Hypergeometric P-value calculation cancelled");
 			}
 		}
+		if (taskMonitor != null)
+			taskMonitor.setProgress(1.0);
 	}
 
 	/*--------------------------------------------------------------

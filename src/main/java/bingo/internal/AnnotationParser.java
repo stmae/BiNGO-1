@@ -523,31 +523,29 @@ public class AnnotationParser extends BingoTask {
 
 	private Annotation remap(Annotation annotation, Ontology ontology, Set<String> genes) throws InterruptedException {
 		Annotation parsedAnnotation = new Annotation(annotation.getSpecies(), annotation.getType(),
-				annotation.getCurator());
-		HashMap annMap = annotation.getMap();
-		Iterator it = annMap.keySet().iterator();
-		maxValue = annMap.keySet().size();
-		int currentProgress = 0;
+                                                     annotation.getCurator());
 		HashSet<String> ids = new HashSet<String>();
 		for (String gene : genes) {
 			if (alias.get(gene) != null) {
 				ids.addAll((HashSet<String>) alias.get(gene));
 			}
 		}
-		while (it.hasNext()) {
-			// Calculate Percentage. This must be a value between 0..1.
-			int percentComplete = (int) (((double) currentProgress / maxValue));
 
-			// Estimate Time Remaining
-			long timeRemaining = maxValue - currentProgress;
-
-			// Update the Task Monitor.
-			if (taskMonitor != null) {
-				taskMonitor.setProgress(percentComplete);
-				taskMonitor.setStatusMessage("Parsing Annotation " + currentProgress + " of " + maxValue);
-			}
-
-			currentProgress++;
+        HashMap annMap = annotation.getMap();
+        Iterator it = annMap.keySet().iterator();
+        maxValue = annMap.keySet().size();
+        int onePercentOfMaxValue = maxValue / 100;
+        int currentProgress = 0;
+        while (it.hasNext()) {
+            currentProgress++;
+            // Update the Task Monitor.
+            // This automatically updates the UI Component w/ progress bar.
+            if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+                taskMonitor.setStatusMessage("remapping " + currentProgress + " of " + maxValue);
+                // Calculate percentage, must be a value between 0..1.
+                double percentComplete = (double) currentProgress / maxValue;
+                taskMonitor.setProgress(percentComplete);
+            }
 
 			parentsSet = new HashSet();
 			String node = it.next() + "";
@@ -575,6 +573,8 @@ public class AnnotationParser extends BingoTask {
 				throw new InterruptedException();
 			}
 		}
+        if (taskMonitor != null)
+            taskMonitor.setProgress(1.0);
 		return parsedAnnotation;
 	}
 
@@ -586,34 +586,32 @@ public class AnnotationParser extends BingoTask {
 	 */
 
 	private Annotation customRemap(Annotation annotation, Ontology ontology, Set<String> genes)
-			throws InterruptedException {
-		Annotation parsedAnnotation = new Annotation(annotation.getSpecies(), annotation.getType(),
-				annotation.getCurator());
-		HashMap annMap = annotation.getMap();
-		Iterator it = annMap.keySet().iterator();
-		maxValue = annMap.keySet().size();
-		int currentProgress = 0;
+			throws InterruptedException
+    {
 		HashSet<String> ids = new HashSet<String>();
 		for (String gene : genes) {
 			if (alias.get(gene) != null) {
 				ids.addAll((HashSet<String>) alias.get(gene));
 			}
 		}
-		while (it.hasNext()) {
-			// Calculate Percentage. This must be a value between 0..1.
-			int percentComplete = (int) (((double) currentProgress / maxValue));
 
-			// Estimate Time Remaining
-			long timeRemaining = maxValue - currentProgress;
-
-			// Update the Task Monitor.
-			// This automatically updates the UI Component w/ progress bar.
-			if (taskMonitor != null) {
-				taskMonitor.setProgress(percentComplete);
-				taskMonitor.setTitle("Parsing Annotation: " + currentProgress + " of " + maxValue);
-			}
-
-			currentProgress++;
+        Annotation parsedAnnotation = new Annotation(annotation.getSpecies(), annotation.getType(),
+                                                     annotation.getCurator());
+        HashMap annMap = annotation.getMap();
+        Iterator it = annMap.keySet().iterator();
+        maxValue = annMap.keySet().size();
+        int onePercentOfMaxValue = maxValue / 100;
+        int currentProgress = 0;
+        while (it.hasNext()) {
+            currentProgress++;
+            // Update the Task Monitor.
+            // This automatically updates the UI Component w/ progress bar.
+            if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+                taskMonitor.setStatusMessage("custom remapping " + currentProgress + " of " + maxValue);
+                // Calculate percentage, must be a value between 0..1.
+                double percentComplete = (double) currentProgress / maxValue;
+                taskMonitor.setProgress(percentComplete);
+            }
 
 			parentsSet = new HashSet();
 			String node = it.next() + "";
@@ -639,6 +637,8 @@ public class AnnotationParser extends BingoTask {
 				throw new InterruptedException();
 			}
 		}
+        if (taskMonitor != null)
+            taskMonitor.setProgress(1.0);
 		return parsedAnnotation;
 	}
 
