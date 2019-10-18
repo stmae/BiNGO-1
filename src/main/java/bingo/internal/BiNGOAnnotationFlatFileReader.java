@@ -197,7 +197,7 @@ public class BiNGOAnnotationFlatFileReader {
 		return annotation;
 	}
 
-	public Map getAlias() {
+	public Map<String, HashSet<String>> getAlias() {
 		return alias;
 	}
 

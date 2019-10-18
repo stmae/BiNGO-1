@@ -220,7 +220,7 @@ public class BiNGOConsortiumAnnotationReader {
 		return consistency;
 	}
 
-	public HashMap getAlias() {
+	public HashMap<String, HashSet<String>> getAlias() {
 		return alias;
 	}
 }

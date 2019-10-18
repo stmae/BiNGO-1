@@ -72,7 +72,7 @@ public class HypergeometricTestCalculate extends CalculateTestTask {
 	 * hashmap with the hypergeometric distribution results as values ; keys =
 	 * GO labels
 	 */
-	private static Map hypergeometricTestMap;
+	private static Map<Integer, String> hypergeometricTestMap;
 
 	// Keep track of progress for monitoring:
 	private int maxValue;
@@ -83,10 +83,10 @@ public class HypergeometricTestCalculate extends CalculateTestTask {
 	 */
 	public HypergeometricTestCalculate(DistributionCount dc) {
 		dc.calculate();
-		this.mapSmallN = dc.getMapSmallN();
-		this.mapSmallX = dc.getMapSmallX();
-		this.mapBigN = dc.getMapBigN();
-		this.mapBigX = dc.getMapBigX();
+		mapSmallN = dc.getMapSmallN();
+		mapSmallX = dc.getMapSmallX();
+		mapBigN = dc.getMapBigN();
+		mapBigX = dc.getMapBigX();
 		this.maxValue = mapSmallX.size();
 
 	}
@@ -104,7 +104,7 @@ public class HypergeometricTestCalculate extends CalculateTestTask {
 			taskMonitor.setTitle("Calculating Hypergeometric Distribution");
 		
 		HypergeometricDistribution hd;
-		hypergeometricTestMap = new HashMap();
+		hypergeometricTestMap = new HashMap<Integer, String>();
 
 		HashSet set = new HashSet(mapSmallX.keySet());
 		Iterator iterator = set.iterator();
@@ -132,8 +132,7 @@ public class HypergeometricTestCalculate extends CalculateTestTask {
 			smallNvalue = new Integer(mapSmallN.get(id).toString());
 			bigXvalue = new Integer(mapBigX.get(id).toString());
 			bigNvalue = new Integer(mapBigN.get(id).toString());
-			hd = new HypergeometricDistribution(smallXvalue.intValue(), bigXvalue.intValue(), smallNvalue.intValue(),
-					bigNvalue.intValue());
+			hd = new HypergeometricDistribution(smallXvalue, bigXvalue, smallNvalue, bigNvalue);
 			hypergeometricTestMap.put(id, hd.calculateHypergDistr());
 
 			if (cancelled)
@@ -148,7 +147,7 @@ public class HypergeometricTestCalculate extends CalculateTestTask {
 	 * 
 	 * @return HashMap hypergeometricTestMap
 	 */
-	public Map getTestMap() {
+	public Map<Integer, String> getTestMap() {
 		return hypergeometricTestMap;
 	}
 

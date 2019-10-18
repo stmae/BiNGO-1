@@ -80,7 +80,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 	 * hashmap with the hypergeometric distribution results as values ; keys =
 	 * GO labels
 	 */
-	private static Map hypergeometricTestMap;
+	private static Map<Integer, String> hypergeometricTestMap;
 
 	// Keep track of progress for monitoring:
 	private int maxValue;
@@ -88,14 +88,13 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 	/**
 	 * constructor with as argument the selected cluster and the annotation,
 	 * ontology and alpha.
-	 * @throws InterruptedException 
 	 */
 	public HypergeometricTestCalculateUnder(DistributionCount dc) {
 		dc.calculate();
-		this.mapSmallN = dc.getMapSmallN();
-		this.mapSmallX = dc.getMapSmallX();
-		this.mapBigN = dc.getMapBigN();
-		this.mapBigX = dc.getMapBigX();
+		mapSmallN = dc.getMapSmallN();
+		mapSmallX = dc.getMapSmallX();
+		mapBigN = dc.getMapBigN();
+		mapBigX = dc.getMapBigX();
 		this.maxValue = mapSmallX.size();
 
 	}
@@ -115,7 +114,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 			taskMonitor.setTitle("Calculating Hypergeometric Distribution");
 		
 		HypergeometricDistributionUnder hd;
-		hypergeometricTestMap = new HashMap();
+		hypergeometricTestMap = new HashMap<Integer, String>();
 
 		HashSet set = new HashSet(mapSmallX.keySet());
 		Iterator iterator = set.iterator();
@@ -163,7 +162,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 	 * 
 	 * @return HashMap hypergeometricTestMap
 	 */
-	public Map getTestMap() {
+	public Map<Integer, String> getTestMap() {
 		return hypergeometricTestMap;
 	}
 

@@ -78,7 +78,7 @@ public class AnnotationParser extends BingoTask {
 	private Annotation annotation;
 	private Annotation parsedAnnotation;
 	private Ontology ontology;
-	private Map alias;
+	private Map<String, HashSet<String>> alias;
 
 	/**
 	 * full ontology which is used for remapping the annotations to one of the
@@ -105,7 +105,7 @@ public class AnnotationParser extends BingoTask {
 	// Keep track of progress for monitoring:
 	private int maxValue;
 
-	private Set parentsSet;
+	private Set<Integer> parentsSet;
 
 
 	public AnnotationParser(BingoParameters params, HashSet<String> genes) {
@@ -132,8 +132,6 @@ public class AnnotationParser extends BingoTask {
 	/**
 	 * method that governs loading and remapping of annotation files
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
 	 */
 	public void calculate() throws Exception {
 		if(taskMonitor != null)
@@ -283,7 +281,7 @@ public class AnnotationParser extends BingoTask {
 		String fileString = params.getAnnotationFile();
 		annotation = null;
 
-		String resultString = "";
+		String resultString;
 
 		// if fileString contains "gene_association" then assume you're using GO
 		// Consortium annotation files
@@ -344,7 +342,7 @@ public class AnnotationParser extends BingoTask {
 
 		String fileString = params.getAnnotationFile();
 		annotation = null;
-		String resultString = "";
+		String resultString;
 
 		// flat file
 		try {
@@ -380,7 +378,7 @@ public class AnnotationParser extends BingoTask {
 		String fileString = params.getOntologyFile();
 		String namespace = params.getNameSpace();
 		ontology = null;
-		String resultString = "";
+		String resultString;
 
 		// obo file
 		if (fileString.endsWith(".obo")) {
@@ -429,9 +427,9 @@ public class AnnotationParser extends BingoTask {
 
 	private String setDefaultOntology(Map synonymHash) {
 
-		String fileString = params.getOntologyFile().toString();
+		String fileString = params.getOntologyFile();
 		ontology = null;
-		String resultString = "";
+		String resultString;
 
 		// flat file.
 		try {
@@ -458,7 +456,7 @@ public class AnnotationParser extends BingoTask {
 	private String setFullOntology() {
 		fullOntology = null;
 		synonymHash = null;
-		String resultString = "";
+		String resultString;
 		
 		if (params.getOntologyFile().endsWith(".obo")) {
 			// read full ontology.
@@ -508,8 +506,8 @@ public class AnnotationParser extends BingoTask {
 		HashMap ontMap = ontology.getTerms();
 		Iterator it = ontMap.keySet().iterator();
 		while (it.hasNext()) {
-			parentsSet = new HashSet();
-			int childNode = new Integer(it.next().toString()).intValue();
+			parentsSet = new HashSet<Integer>();
+			int childNode = Integer.parseInt(it.next().toString());
 			up_go(childNode, childNode, ontology);
 		}
 	}
@@ -527,7 +525,7 @@ public class AnnotationParser extends BingoTask {
 		HashSet<String> ids = new HashSet<String>();
 		for (String gene : genes) {
 			if (alias.get(gene) != null) {
-				ids.addAll((HashSet<String>) alias.get(gene));
+				ids.addAll(alias.get(gene));
 			}
 		}
 
@@ -547,7 +545,7 @@ public class AnnotationParser extends BingoTask {
                 taskMonitor.setProgress(percentComplete);
             }
 
-			parentsSet = new HashSet();
+			parentsSet = new HashSet<Integer>();
 			String node = it.next() + "";
 			if (genes.size() == 0 || ids.contains(node)) {
 				// array with go labels for gene it.next().
@@ -591,7 +589,7 @@ public class AnnotationParser extends BingoTask {
 		HashSet<String> ids = new HashSet<String>();
 		for (String gene : genes) {
 			if (alias.get(gene) != null) {
-				ids.addAll((HashSet<String>) alias.get(gene));
+				ids.addAll(alias.get(gene));
 			}
 		}
 
@@ -613,7 +611,7 @@ public class AnnotationParser extends BingoTask {
                 taskMonitor.setProgress(percentComplete);
             }
 
-			parentsSet = new HashSet();
+			parentsSet = new HashSet<Integer>();
 			String node = it.next() + "";
 			if (genes.isEmpty() || ids.contains(node)) {
 				// array with go labels for gene it.next().
@@ -650,8 +648,8 @@ public class AnnotationParser extends BingoTask {
 		OntologyTerm child = flOntology.getTerm(id);
 		int[] parents = child.getParentsAndContainers();
 		for (int t = 0; t < parents.length; t++) {
-			if (!parentsSet.contains(new Integer(parents[t]))) {
-				parentsSet.add(new Integer(parents[t]));
+			if (!parentsSet.contains(parents[t])) {
+				parentsSet.add(parents[t]);
 				if (ontology.getTerm(parents[t]) != null) {
 					parsedAnnotation.add(node, parents[t]);
 				}
@@ -675,9 +673,9 @@ public class AnnotationParser extends BingoTask {
 			if (parents[t] == startID) {
 				status = false;
 				throw new IOException("Your ontology file contains a cycle at ID " + startID);
-			} else if (!parentsSet.contains(new Integer(parents[t]))) {
+			} else if (!parentsSet.contains(parents[t])) {
 				if (ontology.getTerm(parents[t]) != null) {
-					parentsSet.add(new Integer(parents[t]));
+					parentsSet.add(parents[t]);
 					up_go(startID, parents[t], ontology);
 				} else {
 					System.out.println("term not in ontology: " + parents[t]);
@@ -700,7 +698,7 @@ public class AnnotationParser extends BingoTask {
 		return ontology;
 	}
 
-	public Map getAlias() {		
+	public Map<String, HashSet<String>> getAlias() {
 		return alias;
 	}
 

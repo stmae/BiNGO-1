@@ -212,7 +212,7 @@ public class BiNGOAnnotationDefaultReader {
 		return consistency;
 	}
 
-	public HashMap getAlias() {
+	public HashMap<String, HashSet<String>> getAlias() {
 		return alias;
 	}
 } // class bingoAnnotationDefaultReader
