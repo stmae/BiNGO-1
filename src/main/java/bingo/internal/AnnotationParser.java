@@ -167,7 +167,7 @@ public class AnnotationParser extends BingoTask {
 				if (status == true) {
 					// check for cycles
 					checkOntology(ontology);
-					if (status = true) {
+					if (status == true) {
 						String loadAnnotationString;
 						if (!params.isAnnotation_default()) {
 							loadAnnotationString = setCustomAnnotation();
