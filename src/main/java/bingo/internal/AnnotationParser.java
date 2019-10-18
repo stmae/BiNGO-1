@@ -135,7 +135,7 @@ public class AnnotationParser extends BingoTask {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
-	public void calculate() throws IOException, InterruptedException {
+	public void calculate() throws Exception {
 		if(taskMonitor != null)
 			taskMonitor.setTitle("Parsing Annotation");
 
@@ -148,12 +148,15 @@ public class AnnotationParser extends BingoTask {
 					status = false;
 					// System.out.println("Your full ontology file contains errors "
 					// + loadFullOntologyString);
+                    throw new Exception("Error: could not load ontology file: " + loadFullOntologyString);
 				}
 				if (status == true) {
 					// check for cycles
 					checkOntology(fullOntology);
 				}
-			}
+			} else{
+                throw new Exception("Error: ontology file must have .obo file extension.");
+            }
 
 			if (status == true) {
 				String loadOntologyString = setCustomOntology();
@@ -163,6 +166,7 @@ public class AnnotationParser extends BingoTask {
 					status = false;
 					// System.out.println("Your ontology file contains errors "
 					// + loadOntologyString);
+                    throw new Exception("Error: could not load ontology file: " + loadOntologyString);
 				}
 				if (status == true) {
 					// check for cycles
@@ -180,12 +184,13 @@ public class AnnotationParser extends BingoTask {
 							status = false;
 							// System.out.println("Your annotation file contains errors "
 							// + loadAnnotationString);
+                            throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
 						}
 						// annotation consistent with ontology ?
 						if ((status == true) && (consistency == false)) {
 							status = false;
-							throw new IOException(
-									"None of the labels in your annotation match with the chosen ontology, please check their compatibility.");
+                            throw new Exception("Error: none of the labels in your annotation match with the chosen "
+                                                + "ontology, please check their compatibility.");
 						}
 						if (status == true) {
 							if (params.getOntologyFile().endsWith(".obo")) {
@@ -206,6 +211,7 @@ public class AnnotationParser extends BingoTask {
 				status = false;
 				// System.out.println("Your full ontology file contains errors "
 				// + loadFullOntologyString);
+                throw new Exception("Error: could not load ontology file: " + loadFullOntologyString);
 			}
 			if (status == true) {
 				// check for cycles
@@ -216,6 +222,7 @@ public class AnnotationParser extends BingoTask {
 				if (!loadOntologyString.equals(LOADCORRECT)) {
 					status = false;
 					// System.out.println(loadOntologyString);
+                    throw new Exception("Error: could not load ontology file: " + loadOntologyString);
 				}
 				if (status == true) {
 					// check for cycles
@@ -231,12 +238,13 @@ public class AnnotationParser extends BingoTask {
 						if (!loadAnnotationString.equals(LOADCORRECT)) {
 							status = false;
 							// System.out.println(loadAnnotationString);
+                            throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
 						}
 
 						if ((status == true) && (consistency == false)) {
 							status = false;
-							throw new IOException(
-									"None of the labels in your annotation match with the chosen ontology, please check their compatibility.");
+                            throw new Exception("Error: none of the labels in your annotation match with the chosen "
+                                                + "ontology, please check their compatibility.");
 						}
 
 						if (status == true) {
@@ -258,7 +266,10 @@ public class AnnotationParser extends BingoTask {
 					}
 				}
 			}
-		} 
+		}
+        if (status == false) {
+            throw new Exception("Failed loading or parsing annotation.");
+        }
 	}
 
 	/**
