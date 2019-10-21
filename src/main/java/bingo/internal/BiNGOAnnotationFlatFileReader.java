@@ -134,22 +134,20 @@ public class BiNGOAnnotationFlatFileReader {
 
 	// -------------------------------------------------------------------------
 
-	public void parseHeader(String firstLine) throws Exception {
+	public void parseHeader(String firstLine) {
+		if (!checkHeader(firstLine)) {
+			String errorMsg = "Error in BiNGOAnnotationFlatFileReader.parseHeader():\n";
+			errorMsg += "first line of " + filename + " must have form:\n";
+			errorMsg += "   (species=Homo sapiens) (type=Biological Process) (curator=GO)\n";
+			errorMsg += "instead found:\n";
+			errorMsg += "   " + firstLine + "\n";
+			throw new IllegalArgumentException(errorMsg);
+		}
+
 		String[] tokens = firstLine.trim().split("\\)");
 
-		String errorMsg = "error in AnnotationFlatFileReader.parseHeader ().\n";
-		errorMsg += "First line of " + filename + " must have form:\n";
-		errorMsg += "   (species=Homo sapiens) (type=Biological Process) (curator=GO)\n";
-		errorMsg += "instead found:\n";
-		errorMsg += "   " + firstLine + "\n";
-
-		if (tokens.length != 3)
-			throw new IllegalArgumentException(errorMsg);
-
-		for (int i = 0; i < tokens.length; i++) {
-			String[] subTokens = tokens[i].split("=");
-			if (subTokens.length != 2)
-				throw new IllegalArgumentException(errorMsg);
+		for (String token : tokens) {
+			String[] subTokens = token.split("=");
 			String name = subTokens[0].trim();
 			String value = subTokens[1].trim();
 			if (name.equalsIgnoreCase("(species"))
@@ -162,6 +160,22 @@ public class BiNGOAnnotationFlatFileReader {
 
 	} // parseHeader
 	// -------------------------------------------------------------------------
+
+	/**
+	 * Checks whether a given string which is intended to be the first line of
+	 * a file has the format of the header of a flat annotation file, i.e., a
+	 * pattern like:
+	 * (species=Homo sapiens) (type=Biological Process) (curator=GO)
+	 *
+	 * @param firstLine a single-line string
+	 * @return <code>true</code> if the given string matches the header pattern,
+	 * 		   <code>false</code> otherwise
+	 */
+	static boolean checkHeader(String firstLine) {
+		// Should have pattern like:
+		// "(species=Homo sapiens) (type=Biological Process) (curator=GO)"
+		return firstLine.trim().matches("^\\(species=.+?\\)[ \t]*\\(type=.+?\\)[ \t]*\\(curator=.+?\\)$");
+	}
 
 	private void parse() throws Exception {
 		annotation = new Annotation(species, annotationType, curator);
