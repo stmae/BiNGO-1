@@ -33,12 +33,10 @@ package bingo.internal;
  * * Description: Class that parses the annotation files in function of the chosen ontology.         
  **/
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.cytoscape.work.TaskMonitor;
 
@@ -58,6 +56,19 @@ import bingo.internal.ontology.OntologyTerm;
  */
 
 public class AnnotationParser extends BingoTask {
+
+	/**
+	 * Enum to designate expected annotation file types/formats and versions
+	 */
+	private enum AnnotationFileType {
+		GAF_2_0,
+		GAF_2_1,
+		GAF_UNKNOWN_VERSION,
+		GAF_UNSUPPORTED_VERSION,
+		GENE_ASSOCIATION_FILE,
+		FLAT_FILE,
+		UNKNOWN
+	}
 
 	/**
 	 * constant string for the loadcorrect of the filechooser.
@@ -258,7 +269,7 @@ public class AnnotationParser extends BingoTask {
         // loaded a correct annotation file?
         if (!loadAnnotationString.equals(LOADCORRECT)) {
             parsingStatusOK = false;
-            // System.out.println(loadAnnotationString);
+//			System.out.println(loadAnnotationString);
             throw new Exception("Error: could not load annotation file: " + loadAnnotationString);
         }
 
@@ -277,57 +288,132 @@ public class AnnotationParser extends BingoTask {
 	 */
 	private String setCustomAnnotation() {
 
-		String fileString = params.getAnnotationFile();
 		annotation = null;
 
-		String resultString;
+		String filePath = params.getAnnotationFile();
+		AnnotationFileType annotationFileType;
+		try {
+			annotationFileType = getAnnotationFileType(filePath);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return "file " + filePath + " not found\n" + e;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "file could not be read or parsed\n" + e;
+		}
 
-		// if fileString contains "gene_association" then assume you're using GO
-		// Consortium annotation files
-		if (fileString.contains("gene_association")) {
-			try {
-				BiNGOConsortiumAnnotationReader readerAnnotation = new BiNGOConsortiumAnnotationReader(fileString,
-						synonymHash, params, "Consortium", "GO");
-				annotation = readerAnnotation.getAnnotation();
-				if (readerAnnotation.getOrphans()) {
-					orphansFound = true;
+        switch (annotationFileType) {
+			case GAF_2_0:				// intended fall through
+			case GAF_2_1:				// intended fall through
+			case GAF_UNKNOWN_VERSION:
+				taskMonitor.setStatusMessage("Unknown GAF file version, proceed with caution!");
+										// intended fall through
+			case GENE_ASSOCIATION_FILE:
+				// GO Consortium annotation files (GAF or older gene association file)
+				try {
+					BiNGOConsortiumAnnotationReader readerAnnotation = new BiNGOConsortiumAnnotationReader(filePath,
+							synonymHash, params, "Consortium", "GO");
+					annotation = readerAnnotation.getAnnotation();
+					if (readerAnnotation.getOrphans()) {
+						orphansFound = true;
+					}
+					if (readerAnnotation.getConsistency()) {
+						annotationConsistent = true;
+					}
+					alias = readerAnnotation.getAlias();
+					return LOADCORRECT;
+				} catch (Exception e) {
+					return "file could not be read or parsed\n" + e;
 				}
-				if (readerAnnotation.getConsistency()) {
-                    annotationConsistent = true;
-				}
-				alias = readerAnnotation.getAlias();
-				resultString = LOADCORRECT;
-			} catch (IllegalArgumentException e) {
-				resultString = "ANNOTATION FILE PARSING ERROR, PLEASE CHECK FILE FORMAT:  \n" + e;
-			} catch (IOException e) {
-				resultString = "Annotation file could not be located...";
-			} catch (Exception e) {
-				resultString = "" + e;
-			}
-		} else {
 
-			// flat file reader for custom annotation
-			try {
-				BiNGOAnnotationFlatFileReader readerAnnotation = new BiNGOAnnotationFlatFileReader(fileString,
-						synonymHash);
-				annotation = readerAnnotation.getAnnotation();
-				if (readerAnnotation.getOrphans()) {
-					orphansFound = true;
+			case FLAT_FILE:
+				// flat file reader for custom annotation
+				try {
+					BiNGOAnnotationFlatFileReader readerAnnotation = new BiNGOAnnotationFlatFileReader(filePath,
+							synonymHash);
+					annotation = readerAnnotation.getAnnotation();
+					if (readerAnnotation.getOrphans()) {
+						orphansFound = true;
+					}
+					if (readerAnnotation.getConsistency()) {
+						annotationConsistent = true;
+					}
+					alias = readerAnnotation.getAlias();
+					return LOADCORRECT;
+				} catch (Exception e) {
+					return "file could not be read or parsed\n" + e;
 				}
-				if (readerAnnotation.getConsistency()) {
-                    annotationConsistent = true;
-				}
-				alias = readerAnnotation.getAlias();
-				resultString = LOADCORRECT;
-			} catch (IllegalArgumentException e) {
-				resultString = "ANNOTATION FILE PARSING ERROR, PLEASE CHECK FILE FORMAT:  \n" + e;
-			} catch (IOException e) {
-				resultString = "Annotation file could not be located...";
-			} catch (Exception e) {
-				resultString = "" + e;
+
+			case GAF_UNSUPPORTED_VERSION:
+				// we do not support GAF versions older than 2.0
+                // or future GAF versions by default
+				return "GAF file with unsupported old or new format version detected";
+
+			case UNKNOWN:
+				return "unrecognized annotation file format";
+
+			default:
+				throw new AssertionError("Unknown annotationFileType:" + annotationFileType);
+		}
+	}
+
+	/**
+	 * Attempts to detect the file type of a given annotation file, by parsing
+	 * the first line (or successive header or comment lines) for file type and
+	 * version information (e.g., !gaf-version: 2.1), or based on file
+	 * extension or name.
+	 *
+	 * @param filePath string with a full path to an annotation file
+	 * @return <code><AnnotationFileType/code> detected for the given file
+	 * @throws IOException if the first line of the file could not be read
+	 */
+	private AnnotationFileType getAnnotationFileType(String filePath) throws IOException {
+
+		String currentLine;
+		try (Scanner fileScanner = new Scanner(new File(filePath))) {
+			if (!fileScanner.hasNextLine()) {
+				throw new IOException("Annotation file error: could not read first line of file.");
+			} else {
+				boolean isCommentOrHeaderLine;
+				do {
+					currentLine = fileScanner.nextLine();
+					if (currentLine.startsWith("!gaf-version: 2.0")) {
+						taskMonitor.setStatusMessage("GAF 2.0 file detected: " + currentLine);
+						return AnnotationFileType.GAF_2_0;
+					} else if (currentLine.startsWith("!gaf-version: 2.1")) {
+						taskMonitor.setStatusMessage("GAF 2.1 file detected: " + currentLine);
+						return AnnotationFileType.GAF_2_1;
+					} else if (currentLine.startsWith("!gaf-version: ")) {
+						// we do not support old or future versions by default
+						taskMonitor.setStatusMessage("GAF file with unsupported version detected: " + currentLine);
+						return AnnotationFileType.GAF_UNSUPPORTED_VERSION;
+					} else if (BiNGOAnnotationFlatFileReader.checkHeader(currentLine)) {
+						taskMonitor.setStatusMessage("Flat-format annotation file detected: " + currentLine);
+						return AnnotationFileType.FLAT_FILE;
+					}
+					// allow header/comment lines starting with '!' or '#'
+					isCommentOrHeaderLine = (currentLine.startsWith("!") || currentLine.startsWith("#"));
+					if (isCommentOrHeaderLine) {
+						System.out.println("   header/comment line: " + currentLine);
+					}
+				} while (fileScanner.hasNextLine() && isCommentOrHeaderLine);
 			}
 		}
-		return resultString;
+
+		if (filePath.toLowerCase().endsWith(".gaf")) {
+			taskMonitor.setStatusMessage("GAF file detected by file extension with unknown version "
+										 + "(no version header)");
+			return AnnotationFileType.GAF_UNKNOWN_VERSION;
+		} else if (filePath.toLowerCase().contains("gene_association")) {
+			// kept for backward-compatibility reasons, this used to be the
+			// (only) code to determine if the annotation file is a GO
+			// Consortium gene association annotation files
+			taskMonitor.setStatusMessage("gene_association file detected by file name");
+			return AnnotationFileType.GENE_ASSOCIATION_FILE;
+		} else {
+			taskMonitor.setStatusMessage("could not detect file format, no known header or file name/extension");
+			return AnnotationFileType.UNKNOWN;
+		}
 	}
 
 	/**
