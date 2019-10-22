@@ -30,13 +30,14 @@ package bingo.internal.ui;
  * *
  * * Authors: Steven Maere, Karel Heymans
  * * Date: Mar.25.2005
- * * Description: Class that extends JPanel and impelements ItemListener and ActionListener and 
+ * * Description: Class that extends JPanel and implements ItemListener and ActionListener and
  * * which takes care of making a save panel with checkbox, button for choosing the
  * * location and name for the file to be saved and a textfield with the result of
  * * the selection, file name .     
  **/
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 
 import java.awt.*;
@@ -51,10 +52,10 @@ import java.io.FileWriter;
 
 /**
  * ***************************************************************
- * SettingsSavePanel.java:       Steven Maere & Karel Heymans (c) 	March 2005
+ * SaveResultsPanel.java:       Steven Maere & Karel Heymans (c) 	March 2005
  * -----------------------
  * <p/>
- * Class that extends JPanel and impelements ItemListener and ActionListener and
+ * Class that extends JPanel and implements ItemListener and ActionListener and
  * which takes care of making a save panel with checkbox, button for choosing the
  * location and name for the file to be saved and a textfield with the result of
  * the selection.
@@ -72,15 +73,6 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
      * JCheckBox for making choice of saving or not.
      */
     private JCheckBox checkBox;
-    // icons for the checkboxes.
-    /**
-     * Icon for unchecked box.
-     */
-    private Icon unchecked = new ToggleIcon(false);
-    /**
-     * Icon for checked box.
-     */
-    private Icon checked = new ToggleIcon(true);
     /**
      * the textfield for the save directory name
      */
@@ -88,57 +80,36 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
     /**
      * the button to open the dir chooser window.
      */
-    private JButton saveFileButton;
+    private JButton browseDirectoryButton;
     /**
      * the place where the file is to be saved.
      */
     private File saveFile;
     /**
-     * constant string for the loadcorrect of the filechooser.
-     */
-    private final String LOADCORRECT = "LOADCORRECT";
-    /**
      * parent component
      */
     private Component settingsPanel;
-    /**
-     * filechooser open dir
-     */
-    private String bingoDir;
 
     /*-----------------------------------------------------------------
     CONSTRUCTOR.
     -----------------------------------------------------------------*/
 
     /**
-     * Constructor with a string argument that becomes part of the label
+     * Constructor
      *
-     * @param sort string that denotes part of the name of the button.
      */
-    public SaveResultsPanel(String sort, Component settingsPanel, String bingoDir) {
+    public SaveResultsPanel(Component settingsPanel) {
         super();
         this.settingsPanel = settingsPanel;
-        this.bingoDir = bingoDir;
+        makeJComponents();
         setOpaque(false);
-        makeJComponents(sort);
 
-        // Layout with GridLayout.
-        setLayout(new GridLayout());
+        setLayout(new BorderLayout(0, 0));
+        setBorder(new EmptyBorder(0,0,0,0));
 
-        add(checkBox);
-        add(saveFileButton);
-        add(fileTextField);
-    }
-
-    /*----------------------------------------------------------------
-    PAINTCOMPONENT.
-    ----------------------------------------------------------------*/
-
-    /**
-     * Paintcomponent, draws panel
-     */
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+        add(checkBox, BorderLayout.WEST);
+        add(fileTextField, BorderLayout.CENTER);
+        add(browseDirectoryButton, BorderLayout.EAST);
     }
 
     /*----------------------------------------------------------------
@@ -147,29 +118,25 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
 
     /**
      * Method that creates the JComponents.
-     *
-     * @param sort string that denotes part of the name of the button.
      */
-    public void makeJComponents(String sort) {
+    public void makeJComponents() {
 
-        // JCheckBox.
-        checkBox = new JCheckBox("Check box for saving " + sort);
-        checkBox.setIcon(unchecked);
-        checkBox.setSelectedIcon(checked);
+        // JCheckBox
+        checkBox = new JCheckBox("Save BiNGO data file in:  ");
         checkBox.addItemListener(this);
+        checkBox.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-        // JButton
-        saveFileButton = new JButton("Save BiNGO " + sort + " file in:");
-        saveFileButton.setEnabled(false);
-        saveFileButton.addActionListener(this);
-
-        // textfield.
+        // textfield
         fileTextField = new JTextField();
         fileTextField.setEnabled(false);
         fileTextField.setEditable(false);
         fileTextField.setBackground(Color.white);
         fileTextField.setForeground(Color.black);
 
+        // JButton
+        browseDirectoryButton = new JButton("Browse...");
+        browseDirectoryButton.setEnabled(false);
+        browseDirectoryButton.addActionListener(this);
     }
 
 
@@ -189,8 +156,9 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
 
     public void reset() {
         checkBox.setSelected(false);
-        saveFileButton.setEnabled(false);
+        fileTextField.setEnabled(false);
         fileTextField.setText(null);
+        browseDirectoryButton.setEnabled(false);
     }
 
 
@@ -210,11 +178,11 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
      */
     public String isFileNameLegal(String clusterName) {
 
-        String resultString = LOADCORRECT;
+        String resultString = "LOADCORRECT";
 
         if (checkBox.isSelected()) {
             try {
-                BufferedWriter output = new BufferedWriter(new FileWriter(new File(saveFile.toString(), clusterName)));
+                new BufferedWriter(new FileWriter(new File(saveFile, clusterName)));
             }
             catch (Exception e) {
                 resultString = "FILE NAMING ERROR:  " + e;
@@ -230,16 +198,16 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
     /**
      * Method performed when checkbox checked or unchecked.
      *
-     * @param event event that triggers action, here checking or unchecking checkbox.
+     * @param e event that triggers action, here checking or unchecking checkbox.
      */
     public void itemStateChanged(ItemEvent e) {
 
         if (checkBox.isSelected()) {
-            saveFileButton.setEnabled(true);
             fileTextField.setEnabled(true);
+            browseDirectoryButton.setEnabled(true);
         } else {
-            saveFileButton.setEnabled(false);
             fileTextField.setEnabled(false);
+            browseDirectoryButton.setEnabled(false);
         }
     }
 
@@ -250,7 +218,7 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
     /**
      * Method performed when button clicked.
      *
-     * @param event event that triggers action, here clicking of the button.
+     * @param e event that triggers action, here clicking of the button.
      */
 
     public void actionPerformed(ActionEvent e) {
