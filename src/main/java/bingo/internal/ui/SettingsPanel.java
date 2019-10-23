@@ -109,13 +109,9 @@ public class SettingsPanel extends JPanel {
 	 */
 	private TextOrGraphPanel textOrGraphPanel;
 	/**
-	 * Panel for overrepresentation/underrepresentation .
+	 * Panel for overrepresentation/underrepresentation and visualization.
 	 */
-	private OverUnderPanel overUnderPanel;
-	/**
-	 * JComboBox with the possible tests.
-	 */
-	private VizPanel vizPanel;
+	private OverUnderVizPanel overUnderVizPanel;
 	/**
 	 * JComboBox with the possible tests.
 	 */
@@ -140,10 +136,6 @@ public class SettingsPanel extends JPanel {
 	 * JLabel nameLabel
 	 */
 	private JLabel nameLabel;
-	/**
-	 * JLabel overUnderLabel
-	 */
-	private JLabel overUnderLabel;
 	/**
 	 * JLabel testLabel
 	 */
@@ -322,14 +314,8 @@ public class SettingsPanel extends JPanel {
 		c.gridheight = 1;
 		c.weighty = 1;
 
-		gridbag.setConstraints(overUnderLabel, c);
-		add(overUnderLabel);
-
-		gridbag.setConstraints(overUnderPanel, c);
-		add(overUnderPanel);
-
-		gridbag.setConstraints(vizPanel, c);
-		add(vizPanel);
+		gridbag.setConstraints(overUnderVizPanel, c);
+		add(overUnderVizPanel);
 
 		gridbag.setConstraints(testLabel, c);
 		add(testLabel);
@@ -429,17 +415,13 @@ public class SettingsPanel extends JPanel {
 		alphaField = new JTextField(bingo_props.getProperty("signif_def"));
 		nameField = new JTextField("");
 
-		// OverUnderPanel
-		overUnderPanel = new OverUnderPanel();
-
-		// OverUnderPanel
-		vizPanel = new VizPanel();
+		// OverUnderVizPanel
+        overUnderVizPanel = new OverUnderVizPanel();
 
 		// TextOrGraphPanel
 		textOrGraphPanel = new TextOrGraphPanel();
 
 		// JLabels.
-		overUnderLabel = new JLabel(overunder_label);
 		nameLabel = new JLabel(clustername_label);
 		testLabel = new JLabel(test_label);
 		correctionLabel = new JLabel(correction_label);
@@ -483,12 +465,8 @@ public class SettingsPanel extends JPanel {
 		return textOrGraphPanel;
 	}
 
-	public OverUnderPanel getOverUnderPanel() {
-		return overUnderPanel;
-	}
-
-	public VizPanel getVizPanel() {
-		return vizPanel;
+	public OverUnderVizPanel getOverUnderVizPanel() {
+		return overUnderVizPanel;
 	}
 
 	/**

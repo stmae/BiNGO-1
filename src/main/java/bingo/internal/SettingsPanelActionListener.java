@@ -348,8 +348,8 @@ public class SettingsPanelActionListener implements ActionListener {
 	public boolean updateParameters() {
 		boolean status = true;
 		
-		params.setOverOrUnder(settingsPanel.getOverUnderPanel().getCheckedButton());
-		params.setVisualization(settingsPanel.getVizPanel().getCheckedButton());
+		params.setOverOrUnder(settingsPanel.getOverUnderVizPanel().getCheckedRadioButton());
+		params.setVisualization(settingsPanel.getOverUnderVizPanel().getVizCheckBoxState());
 		params.setCluster_name(settingsPanel.getNameField().getText().trim());
 
 		// checking cluster name.

@@ -37,7 +37,6 @@ package bingo.internal.ui;
  **/
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 
 import java.awt.*;
@@ -105,7 +104,7 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
         setOpaque(false);
 
         setLayout(new BorderLayout(0, 0));
-        setBorder(new EmptyBorder(0,0,0,0));
+        setBorder(BorderFactory.createEmptyBorder());
 
         add(checkBox, BorderLayout.WEST);
         add(fileTextField, BorderLayout.CENTER);
@@ -124,7 +123,7 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
         // JCheckBox
         checkBox = new JCheckBox("Save BiNGO data file in:  ");
         checkBox.addItemListener(this);
-        checkBox.setBorder(new EmptyBorder(0, 0, 0, 0));
+        checkBox.setBorder(BorderFactory.createEmptyBorder());
 
         // textfield
         fileTextField = new JTextField();
@@ -230,6 +229,6 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             saveFile = chooser.getSelectedFile();
             fileTextField.setText(saveFile.toString());
-		}	
-	}
+        }
+    }
 }

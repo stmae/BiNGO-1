@@ -37,7 +37,6 @@ package bingo.internal.ui;
 
 import javax.swing.*;
 
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -78,15 +77,6 @@ public class TextOrGraphPanel extends JPanel implements ActionListener {
      * pane with text area.
      */
     private JScrollPane scrollPane;
-    // icons for the checkboxes.
-    /**
-     * Icon for unchecked box.
-     */
-    private Icon unchecked = new ToggleIcon(false);
-    /**
-     * Icon for checked box.
-     */
-    private Icon checked = new ToggleIcon(true);
     /**
      * the text area for gene input.
      */
@@ -110,37 +100,23 @@ private final int DIM_HEIGHT = 200 ;*/
 
         makeJComponents();
 
-        // Layout with GridBagLayout.
-
+        // Layout with GridBagLayout
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
-
         setLayout(gridbag);
+
         c.weightx = 1;
         c.weighty = 1;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.fill = GridBagConstraints.HORIZONTAL;
-
         gridbag.setConstraints(radioPanel, c);
         add(radioPanel);
 
-        c.fill = GridBagConstraints.BOTH;
-
-        c.gridheight = 5;
         c.weighty = 10;
+        c.gridheight = 5;
+        c.fill = GridBagConstraints.BOTH;
         gridbag.setConstraints(scrollPane, c);
         add(scrollPane);
-    }
-
-    /*----------------------------------------------------------------
-    PAINTCOMPONENT.
-    ----------------------------------------------------------------*/
-
-    /**
-     * Paintcomponent, draws panel.
-     */
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
     }
 
     /*----------------------------------------------------------------
@@ -151,44 +127,42 @@ private final int DIM_HEIGHT = 200 ;*/
      * Method that creates the JComponents.
      *
      */
-    public void makeJComponents() {
+    private void makeJComponents() {
 
         graphButton = new JRadioButton(GRAPHSTRING);
-        graphButton.setIcon(unchecked);
-        graphButton.setSelectedIcon(checked);
+        graphButton.setBorder(BorderFactory.createEmptyBorder());
         graphButton.setMnemonic(KeyEvent.VK_N);
         graphButton.setActionCommand(GRAPHSTRING);
         graphButton.setSelected(true);
 
         textButton = new JRadioButton(TEXTSTRING);
-        textButton.setIcon(unchecked);
-        textButton.setSelectedIcon(checked);
+        textButton.setBorder(BorderFactory.createEmptyBorder());
         textButton.setMnemonic(KeyEvent.VK_T);
         textButton.setActionCommand(TEXTSTRING);
 
-        //Group the radio buttons.
+        // Put the radio buttons in a row in a panel
+        radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        radioPanel.add(graphButton);
+        radioPanel.add(Box.createHorizontalStrut(15));
+        radioPanel.add(textButton);
+
+        // Group the radio buttons
         ButtonGroup group = new ButtonGroup();
         group.add(graphButton);
         group.add(textButton);
 
-        //Register a listener for the radio buttons.
+        // Register a listener for the radio buttons
         graphButton.addActionListener(this);
         textButton.addActionListener(this);
 
-        //JTextArea
+        // JTextArea
         textInputArea = new JTextArea(1000, 500);
         textInputArea.setEditable(false);
         textInputArea.setEnabled(false);
         scrollPane = new JScrollPane(textInputArea,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+                                     JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                                     JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setEnabled(false);
-
-        //Put the radio buttons in a row in a panel.
-        radioPanel = new JPanel(new GridLayout(1, 0));
-        radioPanel.add(graphButton);
-        radioPanel.add(textButton);
-
     }
 
 
@@ -232,6 +206,4 @@ private final int DIM_HEIGHT = 200 ;*/
             scrollPane.setEnabled(false);
         }
     }
-
-
 }
