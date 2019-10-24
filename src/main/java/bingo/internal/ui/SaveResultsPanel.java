@@ -221,13 +221,29 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
      */
 
     public void actionPerformed(ActionEvent e) {
-        JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
-        chooser.setDialogTitle("Select output directory");
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setApproveButtonText("Select");
-        int returnVal = chooser.showOpenDialog(settingsPanel);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            saveFile = chooser.getSelectedFile();
+//        JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
+//        chooser.setDialogTitle("Select output directory");
+//        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//        chooser.setApproveButtonText("Select");
+//        int returnVal = chooser.showOpenDialog(settingsPanel);
+//        if (returnVal == JFileChooser.APPROVE_OPTION) {
+//            saveFile = chooser.getSelectedFile();
+//            fileTextField.setText(saveFile.toString());
+//        }
+
+        final String currentDirectoryPath;
+        if (saveFile != null && !"".equals(saveFile.getPath())) {
+            currentDirectoryPath = saveFile.getPath();
+        } else {
+            currentDirectoryPath = System.getProperty("user.home");
+        }
+        Frame parentFrame = (Frame) ((JComponent) settingsPanel).getTopLevelAncestor();
+        FileChooserOS fileChooser = new FileChooserOS(parentFrame, currentDirectoryPath);
+        fileChooser.setTitle("Select output directory");
+        fileChooser.setApproveButtonText("Select");
+        FileChooserOS.ReturnState returnState = fileChooser.showDialog(true);
+        if (returnState == FileChooserOS.ReturnState.APPROVE) {
+            saveFile = fileChooser.getSelectedFile();
             fileTextField.setText(saveFile.toString());
         }
     }

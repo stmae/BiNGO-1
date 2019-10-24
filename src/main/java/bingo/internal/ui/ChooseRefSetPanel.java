@@ -31,7 +31,8 @@ package bingo.internal.ui;
  * * Authors: Steven Maere
  * * Date: Apr.20.2005
  * * Class that extends JPanel and implements ActionListener. Makes
- * * a panel with a drop-down box of ontology choices. Last option custom... opens FileChooser   
+ * * a panel with a drop-down box of ontology choices. Last option custom...
+ * * opens FileChooser
  **/
 
 
@@ -43,8 +44,10 @@ import bingo.internal.BingoAlgorithm;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
-import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * ***************************************************************
@@ -52,11 +55,12 @@ import java.util.HashSet;
  * -----------------------
  * <p/>
  * Class that extends JPanel and implements ActionListener. Makes
- * a panel with a drop-down box of ontology choices. Last option custom... opens FileChooser
+ * a panel with a drop-down box of ontology choices. Last option custom...
+ * opens FileChooser
  * ******************************************************************
  */
 
-public class ChooseRefSetPanel extends JPanel implements ActionListener {
+public class ChooseRefSetPanel extends JPanel implements ActionListener, ItemListener {
 
 
     /*--------------------------------------------------------------
@@ -68,85 +72,61 @@ public class ChooseRefSetPanel extends JPanel implements ActionListener {
     /**
      * JComboBox with the possible choices.
      */
-    public JComboBox choiceBox;
-    /**
-     * the selected file.
-     */
-    private File openFile = null;
+    private JComboBox<String> choiceBox;
     /**
      * parent window
      */
     private Component settingsPanel;
     /**
-     * default = true, custom = false
+     * boolean to assess default (<code>true</code>) or custom
+     * input (<code>false</code>)
      */
-    private boolean def = true;
+    private boolean defaultItem;
     /**
-     * bingo directory path
+     * the selected (kind of) reference set
      */
-    private String bingoDir;
-    /**
-     * bingo annotations directory path
-     */
-    
     private String specifiedRefSet;
-    
-    //private File annotationFilePath;
-    private String[] choiceArray;
+
+    private String previousSelectedItem;
+
 
     /*-----------------------------------------------------------------
      CONSTRUCTOR.
     -----------------------------------------------------------------*/
 
     /**
-     * Constructor with a string argument that becomes part of the label of
-     * the button.
+     * Constructor
      *
      * @param settingsPanel : parent window
      */
-    public ChooseRefSetPanel(Component settingsPanel, String bingoDir, String [] choiceArray, String choice_def) {
+    public ChooseRefSetPanel(Component settingsPanel, String[] choiceArray, String choice_def) {
         super();
-        this.bingoDir = bingoDir;
         this.settingsPanel = settingsPanel;
-        this.choiceArray = choiceArray;
 
-        //annotationFilePath = new File(bingoDir, "bingo");
         setOpaque(false);
-        makeJComponents();
-        // Layout with GridLayout.
+
+        choiceBox = new JComboBox<>(choiceArray);
+        choiceBox.addActionListener(this);
+        choiceBox.addItemListener(this);
+
+        // Layout with GridLayout
         setLayout(new GridLayout(1, 0));
         add(choiceBox);
 
-        //defaults
-        HashSet<String> choiceSet = new HashSet<String>();
-        for(String s:choiceArray){
-            choiceSet.add(s);
-        }
-        if(choiceSet.contains(choice_def)){
+        // select default combo box item
+        if (Arrays.asList(choiceArray).contains(choice_def)) {
             choiceBox.setSelectedItem(choice_def);
-            specifiedRefSet = (String) choiceBox.getSelectedItem() ;
-            def = true;
-        }
-        else{
+            specifiedRefSet = (String) choiceBox.getSelectedItem();
+            defaultItem = true;
+        } else {
             choiceBox.removeActionListener(this);
             choiceBox.setEditable(true);
             choiceBox.setSelectedItem(choice_def);
             choiceBox.setEditable(false);
-            specifiedRefSet = BingoAlgorithm.CUSTOM ;
-            def=false;
+            specifiedRefSet = CUSTOM;
+            defaultItem = false;
             choiceBox.addActionListener(this);
         }
-    }
-
-    /*----------------------------------------------------------------
-    PAINTCOMPONENT.
-    ----------------------------------------------------------------*/
-
-    /**
-     * Paintcomponent, part where the drawing on the panel takes place.
-     */
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
     }
 
     /*----------------------------------------------------------------
@@ -154,25 +134,12 @@ public class ChooseRefSetPanel extends JPanel implements ActionListener {
     ----------------------------------------------------------------*/
 
     /**
-     * Method that creates the JComponents.
-     */
-    public void makeJComponents() {
-
-        // button.
-        choiceBox = new JComboBox(choiceArray);
-        choiceBox.setEditable(false);
-        choiceBox.addActionListener(this);
-
-
-    }
-
-    /**
      * Method that returns the selected item.
      *
      * @return String selection.
      */
     public String getSelection() {
-        return choiceBox.getSelectedItem().toString();
+        return (String) choiceBox.getSelectedItem();
     }
     
     public String getSpecifiedRefSet() {
@@ -180,10 +147,11 @@ public class ChooseRefSetPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Method that returns 1 if one of default choices was chosen, 0 if custom
+     * Method that returns <code>true</code> if one of teh default choices was
+     * chosen, or <code>false</code> if a custom ontology was chosen
      */
-    public boolean getDefault() {
-        return def;
+    public boolean isDefault() {
+        return defaultItem;
     }
 
     /*----------------------------------------------------------------
@@ -197,28 +165,60 @@ public class ChooseRefSetPanel extends JPanel implements ActionListener {
      */
     public void actionPerformed(ActionEvent event) {
 
-        if (choiceBox.getSelectedItem().equals(CUSTOM)) {
-            JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
-            int returnVal = chooser.showOpenDialog(settingsPanel);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                specifiedRefSet = CUSTOM ;
-                openFile = chooser.getSelectedFile();
+        if (CUSTOM.equals(choiceBox.getSelectedItem())) {
+//            JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
+//            int returnVal = chooser.showOpenDialog(settingsPanel);
+//            if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                specifiedRefSet = CUSTOM;
+//                choiceBox.setEditable(true);
+//                choiceBox.setSelectedItem(chooser.getSelectedFile().toString());
+//                choiceBox.setEditable(false);
+//                defaultItem = false;
+//            }
+//            if (returnVal == JFileChooser.CANCEL_OPTION) {
+//                choiceBox.setSelectedItem(NONE);
+//                specifiedRefSet = NONE;
+//                defaultItem = true;
+//            }
+
+            Frame parentFrame = (Frame) ((JComponent) settingsPanel).getTopLevelAncestor();
+            String directoryPath;
+            if (CUSTOM.equals(specifiedRefSet)) {
+                directoryPath = new File(previousSelectedItem).getParent();
+                System.out.println("directoryPath = " + directoryPath);
+            } else {
+                directoryPath = System.getProperty("user.home");
+            }
+            FileChooserOS fileChooser = new FileChooserOS(parentFrame, directoryPath);
+            FileChooserOS.ReturnState returnState = fileChooser.showDialog();
+            if (returnState == FileChooserOS.ReturnState.APPROVE) {
+                specifiedRefSet = CUSTOM;
                 choiceBox.setEditable(true);
-                choiceBox.setSelectedItem(openFile.toString());
+                choiceBox.setSelectedItem(fileChooser.getSelectedFilePath());
                 choiceBox.setEditable(false);
-                def = false;
+                defaultItem = false;
+            } else if (returnState == FileChooserOS.ReturnState.CANCEL) {
+                if (CUSTOM.equals(specifiedRefSet)) {
+                    choiceBox.setEditable(true);
+                    choiceBox.setSelectedItem(previousSelectedItem);
+                    choiceBox.setEditable(false);
+                } else {
+                    choiceBox.setSelectedItem(previousSelectedItem);
+                }
             }
-            if (returnVal == JFileChooser.CANCEL_OPTION) {
-                choiceBox.setSelectedItem(NONE);
-                specifiedRefSet = NONE ;
-                def = true;
-            }
-        } else if (choiceBox.getSelectedItem().equals(NONE)) {
-            specifiedRefSet = NONE ;
-            def = true;
+        } else if (NONE.equals(choiceBox.getSelectedItem())) {
+            specifiedRefSet = NONE;
+            defaultItem = true;
         } else {
             specifiedRefSet = (String) choiceBox.getSelectedItem() ;
-            def = true;
+            defaultItem = true;
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.DESELECTED) {
+            previousSelectedItem = e.getItem().toString();
         }
     }
 }

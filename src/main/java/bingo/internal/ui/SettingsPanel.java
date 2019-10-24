@@ -409,7 +409,7 @@ public class SettingsPanel extends JPanel {
 		correctionBox.setSelectedItem(bingo_props.getProperty("correction_def"));
 		categoriesBox = new JComboBox(categoriesArray);
 		categoriesBox.setSelectedItem(bingo_props.getProperty("categories_def"));
-		clusterVsPanel = new ChooseRefSetPanel(this, bingoDir, clusterVsArray, bingo_props.getProperty("refset_def"));
+		clusterVsPanel = new ChooseRefSetPanel(this, clusterVsArray, bingo_props.getProperty("refset_def"));
 
 		// JTextField.
 		alphaField = new JTextField(bingo_props.getProperty("signif_def"));
@@ -437,8 +437,8 @@ public class SettingsPanel extends JPanel {
 
 		// annotationPanel.
 		annotationLabel = new JLabel(annotation_label);
-		annotationPanel = new ChooseAnnotationPanel(this, bingoDir, params.getSpeciesLabels(),
-				bingo_props.getProperty("species_def"));
+		annotationPanel = new ChooseAnnotationPanel(this, params.getSpeciesLabels(),
+													bingo_props.getProperty("species_def"));
 
 		// evidence code Field
 		ecField = new JTextField();
@@ -449,8 +449,8 @@ public class SettingsPanel extends JPanel {
 				bingo_props.getProperty("namespace_def"));
 
 		ontologyLabel = new JLabel(ontology_label);
-		ontologyPanel = new ChooseOntologyPanel(this, bingoDir, params.getOntologyLabels(),
-				bingo_props.getProperty("ontology_file_def"));
+		ontologyPanel = new ChooseOntologyPanel(this, params.getOntologyLabels(),
+												bingo_props.getProperty("ontology_file_def"));
 
 		// Creating SettingsSavePanels.
 		dataPanel = new SaveResultsPanel(this);

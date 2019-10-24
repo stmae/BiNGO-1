@@ -30,7 +30,7 @@ package bingo.internal;
  * *
  * * Authors: Steven Maere
  * * Date: Jul.09.2010
- * * Description: Class which implements ActionListener and saves default settings    
+ * * Description: Class which implements ActionListener and saves default settings
  **/
 
 
@@ -47,10 +47,10 @@ import java.util.Properties;
 
 /**
  * *****************************************************************
- * HelpMenuBar.java     Steven Maere & Karel Heymans (c) March 2005
+ * SaveSettingsButtonActionListener.java     Steven Maere & Karel Heymans (c) March 2005
  * ----------------
  * <p/>
- * Class which implements ActionListener and produces a help menubar.
+ * Class which implements ActionListener and saves default settings.
  * ******************************************************************
  */
 
@@ -77,38 +77,35 @@ public class SaveSettingsButtonActionListener implements ActionListener {
     --------------------------------------------------------------*/
 
     /**
-     * Method performed when help clicked.
+     * Method performed when button clicked.
      *
-     * @param event event that triggers action, here clicking of the menu item.
+     * @param e event that triggers action
      */
     public void actionPerformed(ActionEvent e) {
         try {
             //adapt settings in properties file
             Properties bingoProps = settingsPanel.getbingoProps();
             bingoProps.setProperty("tests_def", (String) settingsPanel.getTestBox().getSelectedItem());
-            bingoProps.setProperty("correction_def", (String) settingsPanel.getCorrectionBox().getSelectedItem());       
+            bingoProps.setProperty("correction_def", (String) settingsPanel.getCorrectionBox().getSelectedItem());
             bingoProps.setProperty("categories_def", (String) settingsPanel.getCategoriesBox().getSelectedItem());
             bingoProps.setProperty("signif_def", settingsPanel.getAlphaField().getText());
-            bingoProps.setProperty("refset_def", (String) settingsPanel.getClusterVsPanel().getSelection());
-            bingoProps.setProperty("species_def", (String) settingsPanel.getAnnotationPanel().getSelection());
-            bingoProps.setProperty("ontology_file_def", (String) settingsPanel.getOntologyPanel().getSelection());
-            bingoProps.setProperty("namespace_def", (String) settingsPanel.getNamespacePanel().getSelection());
-            if (settingsPanel.getAnnotationPanel().getDefault()==true){
+            bingoProps.setProperty("refset_def", settingsPanel.getClusterVsPanel().getSelection());
+            bingoProps.setProperty("species_def", settingsPanel.getAnnotationPanel().getSelection());
+            bingoProps.setProperty("ontology_file_def", settingsPanel.getOntologyPanel().getSelection());
+            bingoProps.setProperty("namespace_def", settingsPanel.getNamespacePanel().getSelection());
+            if (settingsPanel.getAnnotationPanel().isDefault()) {
                 bingoProps.setProperty("annotation_default", "true");
-            }
-            else{
+            } else {
                 bingoProps.setProperty("annotation_default", "false");
             }
-            if(settingsPanel.getOntologyPanel().getDefault()==true){
+            if (settingsPanel.getOntologyPanel().isDefault()) {
                 bingoProps.setProperty("ontology_default", "true");
-            }
-            else{
+            } else {
                 bingoProps.setProperty("ontology_default", "false");
             }
             settingsPanel.getParams().storeParameterSettings();
-        }
-        catch (IOException ee) {
-            JOptionPane.showMessageDialog(settingsPanel, "Could not save settings :" + ee);
+        } catch (IOException ee) {
+            JOptionPane.showMessageDialog(settingsPanel, "Could not save settings: " + ee);
         }
     }
 }

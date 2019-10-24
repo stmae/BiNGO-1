@@ -525,7 +525,7 @@ public class SettingsPanelActionListener implements ActionListener {
 				params.setStatus(false);
 			}
 			params.setAnnotationFile(settingsPanel.getAnnotationPanel().getSelection());
-			params.setAnnotation_default(settingsPanel.getAnnotationPanel().getDefault());
+			params.setAnnotation_default(settingsPanel.getAnnotationPanel().isDefault());
 			params.setSpecies(settingsPanel.getAnnotationPanel().getSelection());
 		} else {
 			// get the file name for this species.
@@ -535,7 +535,7 @@ public class SettingsPanelActionListener implements ActionListener {
 				params.setStatus(false);
 			}
 			params.setAnnotationFile(openResourceFile(annot_filename));
-			params.setAnnotation_default(settingsPanel.getAnnotationPanel().getDefault());
+			params.setAnnotation_default(settingsPanel.getAnnotationPanel().isDefault());
 			params.setSpecies(settingsPanel.getAnnotationPanel().getSelection());
 		}
 		if (settingsPanel.getOntologyPanel().getSpecifiedOntology().equals(BingoAlgorithm.CUSTOM)) {
@@ -544,7 +544,7 @@ public class SettingsPanelActionListener implements ActionListener {
 				params.setStatus(false);
 			}
 			params.setOntologyFile(settingsPanel.getOntologyPanel().getSelection());
-			params.setOntology_default(settingsPanel.getOntologyPanel().getDefault());
+			params.setOntology_default(settingsPanel.getOntologyPanel().isDefault());
 			if (settingsPanel.getNamespacePanel().choiceBox.isEnabled()) {
 				if (params.getNameSpace() == null
 						|| !params.getNameSpace().equals(settingsPanel.getNamespacePanel().getSelection())) {
@@ -561,7 +561,7 @@ public class SettingsPanelActionListener implements ActionListener {
 				params.setStatus(false);
 			}
 			params.setOntologyFile(openResourceFile(settingsPanel.getOntologyPanel().getSelection()));
-			params.setOntology_default(settingsPanel.getOntologyPanel().getDefault());
+			params.setOntology_default(settingsPanel.getOntologyPanel().isDefault());
 			params.setNameSpace(BingoAlgorithm.NONE);
 		}
 

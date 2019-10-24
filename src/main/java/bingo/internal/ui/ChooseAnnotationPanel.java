@@ -31,7 +31,8 @@ package bingo.internal.ui;
  * * Authors: Steven Maere
  * * Date: Apr.20.2005
  * * Class that extends JPanel and implements ActionListener. Makes
- * * a panel with a drop-down box of organism/annotation choices. Custom... opens FileChooser   
+ * * a panel with a drop-down box of organism/annotation choices.
+ * * Custom... opens FileChooser
  **/
 
 
@@ -43,8 +44,10 @@ import bingo.internal.BingoAlgorithm;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
-import java.util.HashSet;
+import java.util.Arrays;
 //import java.util.TreeMap;
 
 
@@ -54,11 +57,12 @@ import java.util.HashSet;
  * -----------------------
  * <p/>
  * Class that extends JPanel and implements ActionListener. Makes
- * a panel with a drop-down box of organism/annotation choices. Custom... opens FileChooser
+ * a panel with a drop-down box of organism/annotation choices.
+ * Custom... opens FileChooser
  * ******************************************************************
  */
 
-public class ChooseAnnotationPanel extends JPanel implements ActionListener {
+public class ChooseAnnotationPanel extends JPanel implements ActionListener, ItemListener {
 
     /*--------------------------------------------------------------
      Fields.
@@ -70,135 +74,97 @@ public class ChooseAnnotationPanel extends JPanel implements ActionListener {
     /**
      * JComboBox with the possible choices.
      */
-    public JComboBox choiceBox;
-    /**
-     * Type Of Identifier choice panel for precompiled annotations
-     */
-   // private TypeOfIdentifierPanel typeOfIdentifierPanel;
-    /**
-     * the selected file.
-     */
-    private String specifiedSpecies = null;
-    private File openFile = null;
+    private JComboBox<String> choiceBox;
+//    /**
+//     * Type Of Identifier choice panel for precompiled annotations
+//     */
+//    private TypeOfIdentifierPanel typeOfIdentifierPanel;
     /**
      * parent window
      */
     private Component settingsPanel;
     /**
-     * boolean to assess default or custom input
+     * the selected (kind of) annotation
      */
-    private boolean def = true;
-    /**
-     * bingo directory path
-     */
-    private String bingoDir;
+    private String specifiedSpecies;
 
-    private String [] choiceArray;
-   // private TreeMap identifier_labels;
-//	private String identifier_def;
+    private String previousSelectedItem;
+    /**
+     * boolean to assess default (<code>true</code>) or custom
+     * input (<code>false</code>)
+     */
+    private boolean defaultItem;
+
 
     /*-----------------------------------------------------------------
      CONSTRUCTOR.
     -----------------------------------------------------------------*/
 
     /**
-     * Constructor with a string argument that becomes part of the label of
-     * the button.
+     * Constructor
      *
      * @param settingsPanel : parent window
      */
-    public ChooseAnnotationPanel(Component settingsPanel, String bingoDir, String [] choiceArray, String choice_def) {
+    public ChooseAnnotationPanel(Component settingsPanel, String[] choiceArray, String choice_def) {
         super();
-        this.bingoDir = bingoDir;
         this.settingsPanel = settingsPanel;
+
         setOpaque(false);
 
-        this.choiceArray = choiceArray;
-    //   this.identifier_labels = identifier_labels;
-    //	 this.identifier_def = identifier_def;
-        makeJComponents();
+        choiceBox = new JComboBox<>(choiceArray);
+        choiceBox.addActionListener(this);
+        choiceBox.addItemListener(this);
+//        typeOfIdentifierPanel = new TypeOfIdentifierPanel(identifier_labels, identifier_def);
 
-        // Layout with GridBagLayout.
+//        // Layout with GridBagLayout
+//        GridBagLayout gridbag = new GridBagLayout();
+//        GridBagConstraints c = new GridBagConstraints();
+//        setLayout(gridbag);
+//
+//        c.weightx = 1;
+//        c.weighty = 1;
+//        c.gridwidth = GridBagConstraints.REMAINDER;
+//        c.fill = GridBagConstraints.HORIZONTAL;
+//        gridbag.setConstraints(choiceBox, c);
 
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-
-        setLayout(gridbag);
-        c.weightx = 1;
-        c.weighty = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.fill = GridBagConstraints.HORIZONTAL;
-
-        gridbag.setConstraints(choiceBox, c);
+        // Layout with GridLayout
+        setLayout(new GridLayout(1, 0));
         add(choiceBox);
 
-        c.gridheight = 2;
-        c.weighty = 2;
-  //      gridbag.setConstraints(typeOfIdentifierPanel, c);
-  //      add(typeOfIdentifierPanel);
-  //      typeOfIdentifierPanel.enableButtons();
+//        c.gridheight = 2;
+//        c.weighty = 2;
+//        gridbag.setConstraints(typeOfIdentifierPanel, c);
+//        add(typeOfIdentifierPanel);
+//        typeOfIdentifierPanel.enableButtons();
 
-        //defaults
-
-        HashSet<String> choiceSet = new HashSet<String>();
-        for(String s:choiceArray){
-            choiceSet.add(s);
-        }
-        if(choiceSet.contains(choice_def)){
+        // select default combo box item
+        if (Arrays.asList(choiceArray).contains(choice_def)) {
             choiceBox.setSelectedItem(choice_def);
-            specifiedSpecies = (String)choiceBox.getSelectedItem();
-            def = true;
-        }
-        else{
+            specifiedSpecies = (String) choiceBox.getSelectedItem();
+            defaultItem = true;
+        } else {
             choiceBox.removeActionListener(this);
             choiceBox.setEditable(true);
             choiceBox.setSelectedItem(choice_def);
             choiceBox.setEditable(false);
-            specifiedSpecies = BingoAlgorithm.CUSTOM ;
-            def=false;
+            specifiedSpecies = CUSTOM;
+            defaultItem = false;
             choiceBox.addActionListener(this);
         }
-
-
-    }
-
-    /*----------------------------------------------------------------
-    PAINTCOMPONENT.
-    ----------------------------------------------------------------*/
-
-    /**
-     * Paintcomponent, part where the drawing on the panel takes place.
-     */
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
     }
 
     /*----------------------------------------------------------------
     METHODS.
     ----------------------------------------------------------------*/
 
-    /**
-     * Method that creates the JComponents.
-     */
-    public void makeJComponents() {
-
-        // choiceBox.
-        choiceBox = new JComboBox(choiceArray);
-        choiceBox.setEditable(false);
-        choiceBox.addActionListener(this);
-
-   //     typeOfIdentifierPanel = new TypeOfIdentifierPanel(identifier_labels,identifier_def);
-
-    }
-
-    /**
-     * Method that returns the TypeOfIdentifierPanel.
-     *
-     * @return File selected file.
-     */
- /*   public TypeOfIdentifierPanel getTypeOfIdentifierPanel() {
-        return typeOfIdentifierPanel;
-    }*/
+//    /**
+//     * Method that returns the TypeOfIdentifierPanel.
+//     *
+//     * @return File selected file.
+//     */
+//    public TypeOfIdentifierPanel getTypeOfIdentifierPanel() {
+//        return typeOfIdentifierPanel;
+//    }
 
 
     /**
@@ -216,14 +182,15 @@ public class ChooseAnnotationPanel extends JPanel implements ActionListener {
      * @return String selection.
      */
     public String getSelection() {
-        return choiceBox.getSelectedItem().toString();
+        return (String) choiceBox.getSelectedItem();
     }
 
     /**
-     * Method that returns 1 if one of default choices was chosen, 0 if custom
+     * Method that returns <code>true</code> if one of teh default choices was
+     * chosen, or <code>false</code> if a custom annotation was chosen
      */
-    public boolean getDefault() {
-        return def;
+    public boolean isDefault() {
+        return defaultItem;
     }
 
     /*----------------------------------------------------------------
@@ -231,36 +198,67 @@ public class ChooseAnnotationPanel extends JPanel implements ActionListener {
     ----------------------------------------------------------------*/
 
     /**
-     * Method performed when button clicked.
+     * Method performed when combo box item was selected.
      *
-     * @param event event that triggers action, here clicking of the button.
+     * @param event event that triggers action
      */
     public void actionPerformed(ActionEvent event) {
-     //   typeOfIdentifierPanel.enableButtons();
-        File tmp = new File(bingoDir, "bingo");
-        if (choiceBox.getSelectedItem().equals(NONE)) {
-            specifiedSpecies = NONE;
-            def = true;
-        } else if (choiceBox.getSelectedItem().equals(CUSTOM)) {
-	    specifiedSpecies = CUSTOM;
-            JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
-            int returnVal = chooser.showOpenDialog(settingsPanel);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                openFile = chooser.getSelectedFile();
+        //   typeOfIdentifierPanel.enableButtons();
+        if (CUSTOM.equals(choiceBox.getSelectedItem())) {
+//            JFileChooser chooser = new JFileChooser(System.getProperty("user.home"));
+//            int returnVal = chooser.showOpenDialog(settingsPanel);
+//            if (returnVal == JFileChooser.APPROVE_OPTION) {
+//                choiceBox.setEditable(true);
+//                choiceBox.setSelectedItem(chooser.getSelectedFile().toString());
+//                choiceBox.setEditable(false);
+//                //           typeOfIdentifierPanel.disableButtons();
+//                defaultItem = false;
+//            }
+//            if (returnVal == JFileChooser.CANCEL_OPTION) {
+//                choiceBox.setSelectedItem(NONE);
+//                specifiedSpecies = NONE;
+//                defaultItem = true;
+//            }
+
+            Frame parentFrame = (Frame) ((JComponent) settingsPanel).getTopLevelAncestor();
+            String directoryPath;
+            if (CUSTOM.equals(specifiedSpecies)) {
+                directoryPath = new File(previousSelectedItem).getParent();
+                System.out.println("directoryPath = " + directoryPath);
+            } else {
+                directoryPath = System.getProperty("user.home");
+            }
+            FileChooserOS fileChooser = new FileChooserOS(parentFrame, directoryPath);
+            FileChooserOS.ReturnState returnState = fileChooser.showDialog();
+            if (returnState == FileChooserOS.ReturnState.APPROVE) {
+                specifiedSpecies = CUSTOM;
                 choiceBox.setEditable(true);
-                choiceBox.setSelectedItem(openFile.toString());
+                choiceBox.setSelectedItem(fileChooser.getSelectedFilePath());
                 choiceBox.setEditable(false);
-     //           typeOfIdentifierPanel.disableButtons();
-                def = false;
+                //           typeOfIdentifierPanel.disableButtons();
+                defaultItem = false;
+            } else if (returnState == FileChooserOS.ReturnState.CANCEL) {
+                if (CUSTOM.equals(specifiedSpecies)) {
+                    choiceBox.setEditable(true);
+                    choiceBox.setSelectedItem(previousSelectedItem);
+                    choiceBox.setEditable(false);
+                } else {
+                    choiceBox.setSelectedItem(previousSelectedItem);
+                }
             }
-            if (returnVal == JFileChooser.CANCEL_OPTION) {
-                choiceBox.setSelectedItem(NONE);
-		specifiedSpecies = NONE;
-                def = true;
-            }
+        } else if (NONE.equals(choiceBox.getSelectedItem())) {
+            specifiedSpecies = NONE;
+            defaultItem = true;
         } else {
-            specifiedSpecies = (String)choiceBox.getSelectedItem();
-            def = true;
+            specifiedSpecies = (String) choiceBox.getSelectedItem();
+            defaultItem = true;
+        }
+    }
+
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.DESELECTED) {
+            previousSelectedItem = e.getItem().toString();
         }
     }
 }
