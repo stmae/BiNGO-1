@@ -477,15 +477,8 @@ public class SettingsPanelActionListener implements ActionListener {
 						+ ".bgo already exists. Overwrite (y/n)?\nIf not, choose a different cluster name.", "confirm",
 						JOptionPane.YES_NO_OPTION);// .getValue() ;
 				if (choice != JOptionPane.YES_OPTION) {
-					settingsPanel.getDataPanel().reset();
 					return false;
 				}
-			}
-			// is file name for data file correct?
-			String saveDataFileString = settingsPanel.getDataPanel().isFileNameLegal(params.getCluster_name() + ".bgo");
-			if (!saveDataFileString.equals("LOADCORRECT")) {
-				JOptionPane.showMessageDialog(settingsPanel, "Data File: " + saveDataFileString);
-				return false;
 			}
 		}
 

@@ -153,44 +153,12 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
 
 
     /**
-     * Reset checkBox and JTextField()
-     */
-
-    public void reset() {
-        checkBox.setSelected(false);
-        fileTextField.setEnabled(false);
-        fileTextField.setText(null);
-        browseDirectoryButton.setEnabled(false);
-    }
-
-
-    /**
      * Boolean method for checking whether box is checked or not.
      *
      * @return boolean checked or not checked.
      */
     public boolean checked() {
         return checkBox.isSelected();
-    }
-
-    /**
-     * Method for checking whether the selected file is legal are not.
-     *
-     * @return String with error or LOADCORRECT.
-     */
-    public String isFileNameLegal(String clusterName) {
-
-        String resultString = "LOADCORRECT";
-
-        if (checkBox.isSelected()) {
-            try {
-                new BufferedWriter(new FileWriter(new File(saveFile, clusterName)));
-            }
-            catch (Exception e) {
-                resultString = "FILE NAMING ERROR:  " + e;
-            }
-        }
-        return resultString;
     }
 
     /*----------------------------------------------------------------
