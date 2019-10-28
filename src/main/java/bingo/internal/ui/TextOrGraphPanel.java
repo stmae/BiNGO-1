@@ -92,13 +92,13 @@ private final int DIM_HEIGHT = 200 ;*/
     CONSTRUCTOR.
     -----------------------------------------------------------------*/
 
-    public TextOrGraphPanel() {
+    public TextOrGraphPanel(boolean graph, String text) {
 
         super();
         //setPreferredSize(new Dimension(DIM_WIDTH, DIM_HEIGHT));
         setOpaque(false);
 
-        makeJComponents();
+        makeJComponents(graph, text);
 
         // Layout with GridBagLayout
         GridBagLayout gridbag = new GridBagLayout();
@@ -127,18 +127,19 @@ private final int DIM_HEIGHT = 200 ;*/
      * Method that creates the JComponents.
      *
      */
-    private void makeJComponents() {
+    private void makeJComponents(boolean graph, String text) {
 
         graphButton = new JRadioButton(GRAPHSTRING);
         graphButton.setBorder(BorderFactory.createEmptyBorder());
         graphButton.setMnemonic(KeyEvent.VK_N);
         graphButton.setActionCommand(GRAPHSTRING);
-        graphButton.setSelected(true);
+        graphButton.setSelected(graph);
 
         textButton = new JRadioButton(TEXTSTRING);
         textButton.setBorder(BorderFactory.createEmptyBorder());
         textButton.setMnemonic(KeyEvent.VK_T);
         textButton.setActionCommand(TEXTSTRING);
+        textButton.setSelected(!graph);
 
         // Put the radio buttons in a row in a panel
         radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -156,13 +157,15 @@ private final int DIM_HEIGHT = 200 ;*/
         textButton.addActionListener(this);
 
         // JTextArea
-        textInputArea = new JTextArea(1000, 500);
-        textInputArea.setEditable(false);
-        textInputArea.setEnabled(false);
+        textInputArea = new JTextArea(text, 1000, 500);
         scrollPane = new JScrollPane(textInputArea,
                                      JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                                      JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setEnabled(false);
+        if (graph) {
+            textInputArea.setEditable(false);
+            textInputArea.setEnabled(false);
+            scrollPane.setEnabled(false);
+        }
     }
 
 

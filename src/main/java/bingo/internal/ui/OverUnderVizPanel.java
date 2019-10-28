@@ -75,9 +75,9 @@ public class OverUnderVizPanel extends JPanel {
      */
     private final JCheckBox visualizationCheckBox;
 
-    private static String OVERSTRING = "Overrepresentation";
+    public static String OVERSTRING = "Overrepresentation";
     private static String UNDERSTRING = "Underrepresentation";
-    private static String VIZSTRING = "Visualization";
+    public static String VIZSTRING = "Visualization";
     private static String NOVIZSTRING = "No visualization";
 
 
@@ -85,7 +85,7 @@ public class OverUnderVizPanel extends JPanel {
     CONSTRUCTOR.
     -----------------------------------------------------------------*/
 
-    public OverUnderVizPanel() {
+    public OverUnderVizPanel(String overUnder, String viz) {
         super();
         setOpaque(false);
 
@@ -98,7 +98,7 @@ public class OverUnderVizPanel extends JPanel {
         // Create panel with row of radio buttons
         JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        overButton = new JRadioButton(OVERSTRING, true);
+        overButton = new JRadioButton(OVERSTRING, OVERSTRING.equalsIgnoreCase(overUnder));
         overButton.setBorder(BorderFactory.createEmptyBorder());
         overButton.setMnemonic(KeyEvent.VK_G);
         overButton.setActionCommand(OVERSTRING);
@@ -106,7 +106,7 @@ public class OverUnderVizPanel extends JPanel {
 
         radioPanel.add(Box.createHorizontalStrut(5));
 
-        underButton = new JRadioButton(UNDERSTRING, false);
+        underButton = new JRadioButton(UNDERSTRING, UNDERSTRING.equalsIgnoreCase(overUnder));
         underButton.setBorder(BorderFactory.createEmptyBorder());
         underButton.setMnemonic(KeyEvent.VK_S);
         underButton.setActionCommand(UNDERSTRING);
@@ -120,7 +120,7 @@ public class OverUnderVizPanel extends JPanel {
         add(radioPanel, BorderLayout.CENTER);
 
         // Create visualization check box
-        visualizationCheckBox = new JCheckBox(VIZSTRING, true);
+        visualizationCheckBox = new JCheckBox(VIZSTRING, VIZSTRING.equalsIgnoreCase(viz));
         visualizationCheckBox.setBorder(BorderFactory.createEmptyBorder());
         add(visualizationCheckBox, BorderLayout.EAST);
     }

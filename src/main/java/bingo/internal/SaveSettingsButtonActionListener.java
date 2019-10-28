@@ -103,9 +103,26 @@ public class SaveSettingsButtonActionListener implements ActionListener {
             } else {
                 bingoProps.setProperty("ontology_default", "false");
             }
+            final boolean graphButtonChecked = settingsPanel.getTextOrGraphPanel().graphButtonChecked();
+            bingoProps.setProperty("graph_def", String.valueOf(graphButtonChecked));
+            if (graphButtonChecked) {
+                bingoProps.setProperty("text_def", "");
+            } else {
+                bingoProps.setProperty("text_def", settingsPanel.getTextOrGraphPanel().getInputText());
+            }
+            bingoProps.setProperty("overunder_def", settingsPanel.getOverUnderVizPanel().getCheckedRadioButton());
+            bingoProps.setProperty("visual_def", settingsPanel.getOverUnderVizPanel().getVizCheckBoxState());
+            bingoProps.setProperty("ec_def", settingsPanel.getEcField().getText());
+            final boolean saveButtonChecked = settingsPanel.getDataPanel().checked();
+            bingoProps.setProperty("file_output", String.valueOf(saveButtonChecked));
+            if (saveButtonChecked) {
+                bingoProps.setProperty("outputdir_def", settingsPanel.getDataPanel().getFileDir());
+            } else {
+                bingoProps.setProperty("outputdir_def", "");
+            }
             settingsPanel.getParams().storeParameterSettings();
-        } catch (IOException ee) {
-            JOptionPane.showMessageDialog(settingsPanel, "Could not save settings: " + ee);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(settingsPanel, "Could not save settings: " + ex);
         }
     }
 }

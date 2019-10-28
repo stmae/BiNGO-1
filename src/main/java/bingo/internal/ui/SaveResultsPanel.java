@@ -97,10 +97,13 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
      * Constructor
      *
      */
-    public SaveResultsPanel(Component settingsPanel) {
+    public SaveResultsPanel(Component settingsPanel, boolean save, String filePath) {
         super();
         this.settingsPanel = settingsPanel;
-        makeJComponents();
+        if (filePath != null && !"".equals(filePath)) {
+            this.saveFile = new File(filePath);
+        }
+        makeJComponents(save, filePath);
         setOpaque(false);
 
         setLayout(new BorderLayout(0, 0));
@@ -118,23 +121,23 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
     /**
      * Method that creates the JComponents.
      */
-    public void makeJComponents() {
+    private void makeJComponents(boolean save, String filePath) {
 
         // JCheckBox
-        checkBox = new JCheckBox("Save BiNGO data file in:  ");
+        checkBox = new JCheckBox("Save BiNGO data file in:  ", save);
         checkBox.addItemListener(this);
         checkBox.setBorder(BorderFactory.createEmptyBorder());
 
         // textfield
-        fileTextField = new JTextField();
-        fileTextField.setEnabled(false);
+        fileTextField = new JTextField(filePath);
+        fileTextField.setEnabled(save);
         fileTextField.setEditable(false);
         fileTextField.setBackground(Color.white);
         fileTextField.setForeground(Color.black);
 
         // JButton
         browseDirectoryButton = new JButton("Browse...");
-        browseDirectoryButton.setEnabled(false);
+        browseDirectoryButton.setEnabled(save);
         browseDirectoryButton.addActionListener(this);
     }
 
@@ -235,7 +238,7 @@ public class SaveResultsPanel extends JPanel implements ItemListener, ActionList
         if (saveFile != null && !"".equals(saveFile.getPath())) {
             currentDirectoryPath = saveFile.getPath();
         } else {
-            currentDirectoryPath = System.getProperty("user.home");
+            currentDirectoryPath = null;
         }
         Frame parentFrame = (Frame) ((JComponent) settingsPanel).getTopLevelAncestor();
         FileChooserOS fileChooser = new FileChooserOS(parentFrame, currentDirectoryPath);

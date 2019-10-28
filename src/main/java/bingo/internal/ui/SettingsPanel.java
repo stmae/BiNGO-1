@@ -208,9 +208,8 @@ public class SettingsPanel extends JPanel {
 	public static final String[] clusterVsArray = { BingoAlgorithm.GENOME, BingoAlgorithm.GRAPH, BingoAlgorithm.CUSTOM };
 
 	private BingoParameters params;
-	private Properties bingo_props;
+	private Properties bingoProps;
 
-	String overunder_label = "Do you want to assess over- or underrepresentation:";
 	String clustername_label = "Cluster name:";
 	String test_label = "Select a statistical test:";
 	String correction_label = "Select a multiple testing correction:";
@@ -244,7 +243,7 @@ public class SettingsPanel extends JPanel {
 					+ "Please make sure that there is bingo_gui.properties file" + "\n"
 					+ "in the bingo.jar or in your cytoscape plugins directory.");
 		}
-		bingo_props = params.getbingo_props();
+		bingoProps = params.getbingo_props();
 
 		// create the JComponents.
 		makeJComponents();
@@ -392,7 +391,7 @@ public class SettingsPanel extends JPanel {
 	 * ontology file, a SettingsSavePanel for the data-file and a button to
 	 * start the calculations.
 	 */
-	public void makeJComponents() {
+	private void makeJComponents() {
 
 		helpButton = new JButton("Help");
 		helpButton.setMnemonic(KeyEvent.VK_H);
@@ -402,26 +401,29 @@ public class SettingsPanel extends JPanel {
 		saveSettingsButton.setMnemonic(KeyEvent.VK_S);
 		saveSettingsButton.addActionListener(new SaveSettingsButtonActionListener(this));
 
-		// JComboboxes.
+		// JComboboxes
 		testBox = new JComboBox(testsArray);
-		testBox.setSelectedItem(bingo_props.getProperty("tests_def"));
+		testBox.setSelectedItem(bingoProps.getProperty("tests_def"));
 		correctionBox = new JComboBox(correctionArray);
-		correctionBox.setSelectedItem(bingo_props.getProperty("correction_def"));
+		correctionBox.setSelectedItem(bingoProps.getProperty("correction_def"));
 		categoriesBox = new JComboBox(categoriesArray);
-		categoriesBox.setSelectedItem(bingo_props.getProperty("categories_def"));
-		clusterVsPanel = new ChooseRefSetPanel(this, clusterVsArray, bingo_props.getProperty("refset_def"));
+		categoriesBox.setSelectedItem(bingoProps.getProperty("categories_def"));
+		clusterVsPanel = new ChooseRefSetPanel(this, clusterVsArray, bingoProps.getProperty("refset_def"));
 
-		// JTextField.
-		alphaField = new JTextField(bingo_props.getProperty("signif_def"));
+		// JTextField
+		alphaField = new JTextField(bingoProps.getProperty("signif_def"));
 		nameField = new JTextField("");
 
-		// OverUnderVizPanel
-        overUnderVizPanel = new OverUnderVizPanel();
-
 		// TextOrGraphPanel
-		textOrGraphPanel = new TextOrGraphPanel();
+		final boolean graph = Boolean.parseBoolean(bingoProps.getProperty("graph_def", Boolean.toString(true)));
+		textOrGraphPanel = new TextOrGraphPanel(graph, bingoProps.getProperty("text_def", ""));
 
-		// JLabels.
+		// OverUnderVizPanel
+		final String overUnder = bingoProps.getProperty("overunder_def", OverUnderVizPanel.OVERSTRING);
+		final String viz = bingoProps.getProperty("visual_def", OverUnderVizPanel.VIZSTRING);
+		overUnderVizPanel = new OverUnderVizPanel(overUnder, viz);
+
+		// JLabels
 		nameLabel = new JLabel(clustername_label);
 		testLabel = new JLabel(test_label);
 		correctionLabel = new JLabel(correction_label);
@@ -435,27 +437,28 @@ public class SettingsPanel extends JPanel {
 		clusterVsLabel.setForeground(Color.black);
 		ecLabel = new JLabel(ec_label);
 
-		// annotationPanel.
+		// annotationPanel
 		annotationLabel = new JLabel(annotation_label);
 		annotationPanel = new ChooseAnnotationPanel(this, params.getSpeciesLabels(),
-													bingo_props.getProperty("species_def"));
+													bingoProps.getProperty("species_def"));
 
 		// evidence code Field
-		ecField = new JTextField();
+		ecField = new JTextField(bingoProps.getProperty("ec_def", ""));
 
-		// ontologyPanel.
+		// ontologyPanel
 		namespaceLabel = new JLabel(namespace_label);
 		namespacePanel = new ChooseNamespacePanel(this, bingoDir, params.getNamespaceLabels(),
-				bingo_props.getProperty("namespace_def"));
+												  bingoProps.getProperty("namespace_def"));
 
 		ontologyLabel = new JLabel(ontology_label);
 		ontologyPanel = new ChooseOntologyPanel(this, params.getOntologyLabels(),
-												bingo_props.getProperty("ontology_file_def"));
+												bingoProps.getProperty("ontology_file_def"));
 
-		// Creating SettingsSavePanels.
-		dataPanel = new SaveResultsPanel(this);
+		// Creating SettingsSavePanels
+		final boolean save = Boolean.parseBoolean(bingoProps.getProperty("file_output", Boolean.toString(true)));
+		dataPanel = new SaveResultsPanel(this, save, bingoProps.getProperty("outputdir_def", ""));
 
-		// the bingo-button to start the calculations.
+		// the bingo-button to start the calculations
 		bingoButton = new JButton("Start BiNGO");
 		bingoButton.setMnemonic(KeyEvent.VK_B);
 		bingoButton.addActionListener(new SettingsPanelActionListener(params, this, adapter, syncTaskManager));
@@ -565,7 +568,7 @@ public class SettingsPanel extends JPanel {
 	}
 
 	public Properties getbingoProps() {
-		return bingo_props;
+		return bingoProps;
 	}
 
 	public BingoParameters getParams() {
