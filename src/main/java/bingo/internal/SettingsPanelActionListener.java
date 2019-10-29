@@ -61,8 +61,7 @@ import org.cytoscape.app.swing.CySwingAppAdapter;
 import org.cytoscape.model.CyNetwork;
 import org.cytoscape.model.CyNode;
 import org.cytoscape.view.model.CyNetworkView;
-import org.cytoscape.work.SynchronousTaskManager;
-import org.cytoscape.work.TaskMonitor;
+import org.cytoscape.work.*;
 
 import bingo.internal.ui.SettingsPanel;
 
@@ -203,7 +202,7 @@ public class SettingsPanelActionListener implements ActionListener {
 					} else {
 						JOptionPane.showMessageDialog(settingsPanel, "The selected annotation does not produce any"
 								+ "\n" + "classifications for the selected nodes." + "\n"
-								+ "Maybe you chose the wrong type of gene identifier ?");
+								+ "Maybe you chose the wrong type of gene identifier?");
 					}
 				}
 			} else {
@@ -247,7 +246,7 @@ public class SettingsPanelActionListener implements ActionListener {
 						} else {
 							JOptionPane.showMessageDialog(settingsPanel, "The selected annotation does not produce any"
 									+ "\n" + "classifications for the selected nodes." + "\n"
-									+ "Maybe you chose the wrong type of gene identifier ?");
+									+ "Maybe you chose the wrong type of gene identifier?");
 						}
 					}
 				} else {
@@ -311,7 +310,7 @@ public class SettingsPanelActionListener implements ActionListener {
 									JOptionPane.showMessageDialog(settingsPanel,
 											"The selected annotation does not produce any" + "\n"
 													+ "classifications for the selected nodes." + "\n"
-													+ "Maybe you chose the wrong type of gene identifier ?");
+													+ "Maybe you chose the wrong type of gene identifier?");
 								}
 							}
 						}
@@ -354,7 +353,7 @@ public class SettingsPanelActionListener implements ActionListener {
 
 		// checking cluster name.
 		if (params.getCluster_name().equals("")) {
-			JOptionPane.showMessageDialog(settingsPanel, "Please choose a cluster name ");
+			JOptionPane.showMessageDialog(settingsPanel, "Please choose a cluster name.");
 			return false;
 		}
 
@@ -365,7 +364,7 @@ public class SettingsPanelActionListener implements ActionListener {
 			
 			if (params.getCluster_name().equals(title)) {
 				JOptionPane.showMessageDialog(settingsPanel,
-						"A network with this name already exists in Cytoscape. Please choose another cluster name ");
+						"A network with this name already exists in Cytoscape. Please choose another cluster name.");
 				return false;
 			}
 		}
@@ -381,7 +380,7 @@ public class SettingsPanelActionListener implements ActionListener {
 			// 200905 changed : accept input from (large) network without view
 			// loaded
 			if (network == null) {
-				JOptionPane.showMessageDialog(settingsPanel, "Please load a network.");
+				JOptionPane.showMessageDialog(settingsPanel, "Please load or select a network.");
 				return false;
 //			} else if (network.getSelectedNodes().size() == 0) {
 			} else {
@@ -504,7 +503,7 @@ public class SettingsPanelActionListener implements ActionListener {
 			// 200905 changed : accept input from (large) network without view
 			// loaded
 			if (network == null) {
-				JOptionPane.showMessageDialog(settingsPanel, "Please load a network.");
+				JOptionPane.showMessageDialog(settingsPanel, "Please load or select a network.");
 				return false;
 			}
 		}
@@ -567,7 +566,7 @@ public class SettingsPanelActionListener implements ActionListener {
 					deleteCodes.add(codes[i].toUpperCase());
 				} else {
 					JOptionPane.showMessageDialog(settingsPanel, "Evidence code " + codes[i].toUpperCase()
-							+ " does not exist");
+							+ " does not exist.");
 					return false;
 				}
 			}
@@ -596,22 +595,40 @@ public class SettingsPanelActionListener implements ActionListener {
 		if (params.getStatus() == false) {
 			AnnotationParser annParser = params.initializeAnnotationParser();
 			System.out.println("\nCalling annotation parser...");
-			syncTaskManager.execute(new GenericTaskFactory(annParser).createTaskIterator()); 
-			System.out.println("Calling annotation parser...DONE!!");
+            syncTaskManager.execute(new GenericTaskFactory(annParser).createTaskIterator(), new TaskObserver() {
+				@Override
+				public void taskFinished(ObservableTask observableTask) {
+					// ignored
+				}
+
+				@Override
+				public void allFinished(FinishStatus finishStatus) {
+					if (finishStatus.getType() == FinishStatus.Type.FAILED && finishStatus.getException() != null) {
+						JOptionPane.showMessageDialog(settingsPanel, finishStatus.getException().getMessage(),
+													  "Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			});
 			if (annParser.isParsingStatusOK()) {
+                System.out.println("Calling annotation parser...DONE!");
 				params.setAnnotation(annParser.getAnnotation());
 				params.setOntology(annParser.getOntology());
 				params.setAlias(annParser.getAlias());
+				if (!"".equals(annParser.getWarningMessage())) {
+					JOptionPane.showMessageDialog(settingsPanel, annParser.getWarningMessage(), "Warning",
+												  JOptionPane.WARNING_MESSAGE);
+				}
 				if (annParser.hasOrphans()) {
 					JOptionPane.showMessageDialog(settingsPanel,
-							"WARNING : Some category labels in the annotation file" + "\n"
-									+ "are not defined in the ontology. Please check the compatibility of" + "\n"
-									+ "these files. For now, these labels will be ignored and calculations" + "\n"
-									+ "will proceed.");
+                                                  "Some category labels in the annotation file are not defined in \n" +
+                                                  "the ontology. Please check the compatibility of these files. \n" +
+                                                  "For now, these labels will be ignored and calculations will proceed.",
+                                                  "Warning", JOptionPane.WARNING_MESSAGE);
 				}
 				// only way to set status true is to pass annotation parse step
 				params.setStatus(true);
 			} else {
+                System.out.println("Calling annotation parser...ERROR!");
 				params.setStatus(false);
 				return false;
 			}
@@ -774,7 +791,7 @@ public class SettingsPanelActionListener implements ActionListener {
 					redundantIDs.put(canonicalName,
 							(HashSet<String>) params.getAlias().get(canonicalName));
 					int opt = JOptionPane.showOptionDialog(settingsPanel,
-							"WARNING : The network contains multiple identifiers for the gene/protein " + "\n"
+							"WARNING: The network contains multiple identifiers for the gene/protein " + "\n"
 									+ canonicalName
 									+ ". If you press 'Yes', the redundant identifier will be ignored " + "\n"
 									+ "and calculations will proceed. Press 'No' to abort calculations.", "WARNING",
