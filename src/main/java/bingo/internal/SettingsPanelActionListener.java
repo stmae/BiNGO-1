@@ -418,14 +418,22 @@ public class SettingsPanelActionListener implements ActionListener {
 		// significance cut-off
 		params.setCorrection((String) settingsPanel.getCorrectionBox().getSelectedItem());
 		params.setTest((String) settingsPanel.getTestBox().getSelectedItem());
-		params.setSignificance(new BigDecimal(settingsPanel.getAlphaField().getText()));
+        BigDecimal significanceLevel;
+        try {
+            significanceLevel = new BigDecimal(settingsPanel.getAlphaField().getText());
+        } catch (NumberFormatException e) {
+//            e.printStackTrace();
+            JOptionPane.showMessageDialog(settingsPanel, "Please input a valid decimal number as significance level.");
+            return false;
+        }
+        params.setSignificance(significanceLevel);
 		// distribution selected?
 		if (params.getTest().equals(NONE)) {
 			settingsPanel.getAlphaField().setText("1.00");
 			params.setSignificance(new BigDecimal("1.00"));
 			if (!params.getCorrection().equals(NONE)) {
-				JOptionPane.showMessageDialog(settingsPanel,
-						"Multiple testing correction not possible without test selection...");
+				JOptionPane.showMessageDialog(settingsPanel, "Multiple testing correction not possible without " +
+                                                             "test selection...");
 				return false;
 			}
 		} else {
