@@ -360,11 +360,12 @@ public class SettingsPanelActionListener implements ActionListener {
 		final Set<CyNetwork> networkSet = adapter.getCyNetworkManager().getNetworkSet();
 		for (final CyNetwork network : networkSet) {
 			//final String title = network.getCyRow().get(CyNetwork.NAME, String.class);
-			final String title = network.getDefaultNetworkTable().getRow(network.getSUID()).get(CyNetwork.NAME, String.class);
+			final String title = network.getDefaultNetworkTable().getRow(network.getSUID()).get(CyNetwork.NAME,
+                                                                                                String.class);
 			
 			if (params.getCluster_name().equals(title)) {
-				JOptionPane.showMessageDialog(settingsPanel,
-						"A network with this name already exists in Cytoscape. Please choose another cluster name.");
+				JOptionPane.showMessageDialog(settingsPanel, "A network with this name already exists in " +
+                                                             "Cytoscape. Please choose another cluster name.");
 				return false;
 			}
 		}
@@ -373,34 +374,35 @@ public class SettingsPanelActionListener implements ActionListener {
 		// checking whether, if we select nodes from the network, the network
 		// and the selected nodes exist
 		if (params.isTextOrGraph()) {
-			// get the network object from the window.
+			// get the network object from the window
 			// CyNetworkView graphView = Cytoscape.getCurrentNetworkView();
-			final CyNetwork network = adapter.getCyApplicationManager().getCurrentNetwork();
-			// can't continue if either of these is null
-			// 200905 changed : accept input from (large) network without view
-			// loaded
+			CyNetwork network = adapter.getCyApplicationManager().getCurrentNetwork();
 			if (network == null) {
-				JOptionPane.showMessageDialog(settingsPanel, "Please load or select a network.");
-				return false;
-//			} else if (network.getSelectedNodes().size() == 0) {
-			} else {
-				// FIXME
-				boolean selectedFound = false;
-				final List<CyNode> nodes = network.getNodeList();
-				for (CyNode node: nodes) {
-					//if (node.getCyRow().get(CyNetwork.SELECTED, Boolean.class) == true) {
-					if (network.getDefaultNodeTable().getRow(node.getSUID()).get(CyNetwork.SELECTED, Boolean.class) == true) {
-						selectedFound = true;
-						break;
-					}
-				}
+                // check if there is only one network but user forgot to select it
+                if (networkSet.size() == 1) {
+                    network = networkSet.iterator().next();
+                    adapter.getCyApplicationManager().setCurrentNetwork(network);
+                } else {
+                    JOptionPane.showMessageDialog(settingsPanel, "Please load or select a network.");
+                    return false;
+                }
+            }
+            // FIXME
+            boolean selectedFound = false;
+            final List<CyNode> nodes = network.getNodeList();
+            for (CyNode node: nodes) {
+                //if (node.getCyRow().get(CyNetwork.SELECTED, Boolean.class) == true) {
+                if (network.getDefaultNodeTable().getRow(node.getSUID()).get(CyNetwork.SELECTED, Boolean.class)) {
+                    selectedFound = true;
+                    break;
+                }
+            }
 
-				if (selectedFound == false) {
-					// put up a dialog if there are no selected nodes
-					JOptionPane.showMessageDialog(settingsPanel, "Please select one or more nodes.");
-					return false;
-				}
-			}
+            if (!selectedFound) {
+                // put up a dialog if there are no selected nodes
+                JOptionPane.showMessageDialog(settingsPanel, "Please select one or more nodes.");
+                return false;
+            }
 		}
 		// testing whether, if nodes are selected from text area, there is
 		// something valid in the text area
