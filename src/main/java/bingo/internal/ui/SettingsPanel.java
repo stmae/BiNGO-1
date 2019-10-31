@@ -455,7 +455,7 @@ public class SettingsPanel extends JPanel {
 												bingoProps.getProperty("ontology_file_def"));
 
 		// Creating SettingsSavePanels
-		final boolean save = Boolean.parseBoolean(bingoProps.getProperty("file_output", Boolean.toString(true)));
+		final boolean save = Boolean.parseBoolean(bingoProps.getProperty("file_output", Boolean.toString(false)));
 		dataPanel = new SaveResultsPanel(this, save, bingoProps.getProperty("outputdir_def", ""));
 
 		// the bingo-button to start the calculations

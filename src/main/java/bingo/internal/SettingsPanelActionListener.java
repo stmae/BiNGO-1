@@ -478,9 +478,15 @@ public class SettingsPanelActionListener implements ActionListener {
 		params.setFileoutput(settingsPanel.getDataPanel().checked());
 		// datafile save option selected ?
 		if (params.isFileoutput()) {
+			final String dataFileDir = settingsPanel.getDataPanel().getFileDir();
+			params.setFileoutput_dir(dataFileDir);
+			if (dataFileDir == null || "".equals(dataFileDir)) {
+				JOptionPane.showMessageDialog(settingsPanel, "Please select a directory to save the BiNGO data file " +
+															 "in.");
+				return false;
+			}
+			File sel = new File(dataFileDir, params.getCluster_name() + ".bgo");
 			// does file exist already ?
-			params.setFileoutput_dir(settingsPanel.getDataPanel().getFileDir());
-			File sel = new File(settingsPanel.getDataPanel().getFileDir(), params.getCluster_name() + ".bgo");
 			if (sel.exists()) {
 				int choice = JOptionPane.showConfirmDialog(settingsPanel, "File " + params.getCluster_name()
 						+ ".bgo already exists. Overwrite (y/n)?\nIf not, choose a different cluster name.", "confirm",
@@ -492,10 +498,11 @@ public class SettingsPanelActionListener implements ActionListener {
 		}
 
 		if (params.getReferenceSet() == null
-				|| !params.getReferenceSet().equals((String) settingsPanel.getClusterVsPanel().getSelection())) {
+				|| !params.getReferenceSet().equals(settingsPanel.getClusterVsPanel().getSelection()))
+		{
 			params.setStatus(false);
 		}
-		params.setReferenceSet((String) settingsPanel.getClusterVsPanel().getSelection());
+		params.setReferenceSet(settingsPanel.getClusterVsPanel().getSelection());
 
 		// testing versus-option selected?
 		if (params.getReferenceSet().equals(NONE)) {
