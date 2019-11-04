@@ -34,13 +34,9 @@ import javax.swing.table.* ;
 
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 
 /**
@@ -114,10 +110,10 @@ public class ResultTableModel  extends AbstractTableModel {
             public boolean isCellEditable(int row, int col) {
                 //Note that the data/cell address is constant,
                 //no matter where the cell appears onscreen.
-                if (col == SELECT || col == DESCRIPTION){ //si j'utilise pas combobox amigo sgd, laisser ke if col ==1'
+                if (col == SELECT) { //si j'utilise pas combobox amigo sgd, laisser ke if col ==1'
+//                if (col == SELECT || col == DESCRIPTION){ //si j'utilise pas combobox amigo sgd, laisser ke if col ==1'
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
                 //if ((col > 0)) {

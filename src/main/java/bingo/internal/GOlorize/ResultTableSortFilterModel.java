@@ -31,7 +31,6 @@ package bingo.internal.GOlorize;
 
 import java.util.Arrays;
 
-import javax.swing.JLabel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
@@ -108,8 +107,8 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 			 */
 
 			if (model.getColumnName(sortColumn).equals(" ")) {
-				boolean b1 = ((Boolean) a).booleanValue();
-				boolean b2 = ((Boolean) b).booleanValue();
+				boolean b1 = (Boolean) a;
+				boolean b2 = (Boolean) b;
 				if (b1 == true && b2 == false)
 					return -1;
 				if (b1 == false && b2 == true)
@@ -118,15 +117,17 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 					return 0;
 
 			}
-			if (model.getColumnName(sortColumn).equals("GO-ID")) {
+
+			if (model.getColumnName(sortColumn).equals(ResultPanel.HEADER_GO_ID)) {
 				// return ((Comparable)a).compareTo(b);
 				return new Integer((String) a).compareTo(new Integer((String) b));
 			}
-			if (model.getColumnName(sortColumn).equals("Description")) {
-				return ((Comparable) ((JLabel) a).getText()).compareTo(((JLabel) b).getText());
+			if (model.getColumnName(sortColumn).equals(ResultPanel.HEADER_GO_DESCRIPTION)) {
+				return ((String) a).compareTo((String) b);
+//				return ((Comparable) ((JLabel) a).getText()).compareTo(((JLabel) b).getText());
 			}
 
-			if (model.getColumnName(sortColumn).equals("p-val") || model.getColumnName(sortColumn).equals("corr p-val")) {
+			if (model.getColumnName(sortColumn).equals(ResultPanel.HEADER_P_VAL) || model.getColumnName(sortColumn).equals(ResultPanel.HEADER_CORRECTED_P_VAL)) {
 				// int offsa = ((String)a).indexOf(" ");
 				// int offsb = ((String)b).indexOf(" ");
 				// Double sa = new
@@ -139,16 +140,17 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 
 				return sa.compareTo(sb);
 			}
-			if (model.getColumnName(sortColumn).equals("cluster freq")
-					|| model.getColumnName(sortColumn).equals("total freq")) {
+
+			if (model.getColumnName(sortColumn).equals(ResultPanel.HEADER_CLUSTER_FREQUENCY)
+					|| model.getColumnName(sortColumn).equals(ResultPanel.HEADER_TOTAL_FREQUENCY)) {
 				int offs = ((String) a).indexOf("/");
 				Integer sa = new Integer(((String) a).substring(0, offs));
 				offs = ((String) b).indexOf("/");
 				Integer sb = new Integer(((String) b).substring(0, offs));
 				return sa.compareTo(sb);
-			} else
+			} else {
 				return 0;
-
+			}
 		}
 	}
 }

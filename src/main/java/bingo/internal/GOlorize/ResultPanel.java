@@ -29,15 +29,7 @@
 
 package bingo.internal.GOlorize;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Label;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -62,6 +54,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
@@ -80,6 +73,14 @@ import bingo.internal.ontology.Ontology;
  * @author ogarcia
  */
 public class ResultPanel extends JPanel implements ResultAndStartPanel {
+
+	public static final String HEADER_GO_ID = "GO ID";
+	public static final String HEADER_GO_DESCRIPTION = "GO Description";
+	public static final String HEADER_P_VAL = "p-val";
+	public static final String HEADER_CORRECTED_P_VAL = "Corrected p-val";
+	public static final String HEADER_CLUSTER_FREQUENCY = "Cluster frequency";
+	public static final String HEADER_TOTAL_FREQUENCY = "Total frequency";
+	public static final String HEADER_GENES = "Genes";
 
 	private Map testMap;
 	/** hashmap with key termID and value corrected pvalue. */
@@ -268,50 +269,123 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		// JLabel(annotation.getOntology().getDescription().getType()+" "+annotation.getOntology().getDescription().getCurator());
 		// ontology_Description.setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
 		// jPanelButtons.add(ontology_Description);
-		JLabel annotation_Description = new JLabel(annotation.getCurator() + "," + annotation.getSpecies() + ","
-				+ annotation.getType() + "," + ontology.getCurator() + "," + ontology.getType());
-		annotation_Description.setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
+		JLabel annotation_Description = new JLabel("Annotation: Curator = " + annotation.getCurator() + ", " +
+												   "Species = " + annotation.getSpecies() + ", " +
+												   "Type = " + annotation.getType() + "   " +
+												   "Ontology: Curator = " + ontology.getCurator() + ", " +
+												   "Type = " + ontology.getType());
+//		annotation_Description.setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
 		jPanelButtons.add(annotation_Description);
 
-		JButton jCloseButton = new JButton("close");
+		JButton jCloseButton = new JButton("Close tab");
 		jCloseButton.addActionListener(new CloseResultPanelListener(this));
 		jPanelButtons.add(jCloseButton);
 
 		jPanelDeBase.add(jPanelButtons, java.awt.BorderLayout.NORTH);
 
-		jTable1 = new JTable(new ResultTableModel(columnNames, data));
-		TableColumnModel tcModel = jTable1.getColumnModel();
-
-		// // jTable1.addMouseMotionListener(new MouseMotionT1Handler());
-		jTable1.setDragEnabled(false);
-		final ResultTableSortFilterModel sorter = new ResultTableSortFilterModel(jTable1.getModel());// ///////////////////////
+		final ResultTableModel tableModel = new ResultTableModel(columnNames, data);
+		final ResultTableSortFilterModel sorter = new ResultTableSortFilterModel(tableModel);
 		jTable1 = new JTable(sorter);
-		jTable1/* .getTableHeader().getTable() */.setCellSelectionEnabled(true);
-		jTable1.addMouseListener(new MouseT1Handler(this));
-		jTable1.addMouseMotionListener(new MouseMotionT1Handler());
-		tcModel = jTable1.getColumnModel();
+		jTable1.setDragEnabled(false);
+		jTable1.setCellSelectionEnabled(true);
+//		jTable1.addMouseListener(new MouseT1Handler(this));
+//		jTable1.addMouseMotionListener(new MouseMotionT1Handler());
+		TableCellRenderer headerRenderer = jTable1.getTableHeader().getDefaultRenderer();
+		TableColumnModel tcModel = jTable1.getColumnModel();
 		for (int i = 0; i < columnNames.length; i++) {
-			if (columnNames[i].equals(" "))
-				tcModel.getColumn(i).setPreferredWidth(15);
-			if (columnNames[i].equals("GO-ID"))
-				tcModel.getColumn(i).setPreferredWidth(50);
-			if (columnNames[i].equals("Description"))
-				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 2);
-			if (columnNames[i].equals("cluster freq"))
-				tcModel.getColumn(i).setPreferredWidth(85);
-			if (columnNames[i].equals("total freq"))
-				tcModel.getColumn(i).setPreferredWidth(85);
-			if (columnNames[i].equals("genes"))
-				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 2);
-			if (columnNames[i].equals("p-val"))
-				tcModel.getColumn(i).setPreferredWidth(70);
-			if (columnNames[i].equals("corr p-val"))
-				tcModel.getColumn(i).setPreferredWidth(70);
+			final TableColumn column = tcModel.getColumn(i);
+			if (columnNames[i].equals(" ")) {
+				// check box column (1st column)
+//				tcModel.getColumn(i).setPreferredWidth(15);
+				Object rowZeroValue = tableModel.getValueAt(0, i);
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				Component comp = defaultRenderer.getTableCellRendererComponent(jTable1, rowZeroValue,
+																			   false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				column.setMinWidth(cellWidth);
+				column.setMaxWidth(cellWidth);
+				column.setPreferredWidth(cellWidth);
+			}
+			if (columnNames[i].equals(HEADER_GO_ID)) {
+//				tcModel.getColumn(i).setPreferredWidth(50);
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				Component comp = defaultRenderer.getTableCellRendererComponent(jTable1, 999_999,
+																			   false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				column.setPreferredWidth((int) (cellWidth * 1.2));
+				column.setMaxWidth((int) (cellWidth * 1.3));
+				System.out.println(i + " = " + cellWidth);
+			}
+			if (columnNames[i].equals(HEADER_GO_DESCRIPTION)) {
+//				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 3);
+//				tcModel.getColumn(i).setPreferredWidth(300);
+			}
+			if (columnNames[i].equals(HEADER_P_VAL)) {
+//				tcModel.getColumn(i).setPreferredWidth(70);
+				Component comp = headerRenderer.getTableCellRendererComponent(jTable1, column.getHeaderValue(),
+																			  false, false, 0, i);
+				int headerWidth = comp.getPreferredSize().width;
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				comp = defaultRenderer.getTableCellRendererComponent(jTable1, 9.99999E-222,
+																	 false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				int width = Math.max(cellWidth, headerWidth);
+				column.setPreferredWidth((int) (width * 1.2));
+				column.setMaxWidth((int) (width * 1.3));
+				System.out.println(i + " = " + width);
+			}
+			if (columnNames[i].equals(HEADER_CORRECTED_P_VAL)) {
+//				tcModel.getColumn(i).setPreferredWidth(70);
+				Component comp = headerRenderer.getTableCellRendererComponent(jTable1, column.getHeaderValue(),
+																			  false, false, 0, i);
+				int headerWidth = comp.getPreferredSize().width;
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				comp = defaultRenderer.getTableCellRendererComponent(jTable1, 9.99999E-222,
+																	 false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				int width = Math.max(cellWidth, headerWidth);
+				column.setPreferredWidth((int) (width * 1.2));
+				column.setMaxWidth((int) (width * 1.3));
+				System.out.println(i + " = " + width);
+			}
+			if (columnNames[i].equals(HEADER_CLUSTER_FREQUENCY)) {
+//				tcModel.getColumn(i).setPreferredWidth(85);
+				Component comp = headerRenderer.getTableCellRendererComponent(jTable1, column.getHeaderValue(),
+																			  false, false, 0, i);
+				int headerWidth = comp.getPreferredSize().width;
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				comp = defaultRenderer.getTableCellRendererComponent(jTable1, "99999/99999  99.99%",
+																			   false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				int width = Math.max(cellWidth, headerWidth);
+				column.setPreferredWidth((int) (width * 1.2));
+				column.setMaxWidth((int) (width * 1.3));
+				System.out.println(i + " = " + width);
+			}
+			if (columnNames[i].equals(HEADER_TOTAL_FREQUENCY)) {
+//				tcModel.getColumn(i).setPreferredWidth(85);
+				Component comp = headerRenderer.getTableCellRendererComponent(jTable1, column.getHeaderValue(),
+																			  false, false, 0, i);
+				int headerWidth = comp.getPreferredSize().width;
+				TableCellRenderer defaultRenderer = jTable1.getDefaultRenderer(tableModel.getColumnClass(i));
+				comp = defaultRenderer.getTableCellRendererComponent(jTable1, "99999/99999  99.99%",
+																	 false, false, 0, i);
+				int cellWidth = comp.getPreferredSize().width;
+				int width = Math.max(cellWidth, headerWidth);
+				column.setPreferredWidth((int) (width * 1.2));
+				column.setMaxWidth((int) (width * 1.3));
+				System.out.println(i + " = " + width);
+			}
+			if (columnNames[i].equals(HEADER_GENES)) {
+//				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 3);
+//				tcModel.getColumn(i).setPreferredWidth(500);
+			}
 		}
 		jTable1.getTableHeader().addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() < 2)
+				if (e.getClickCount() < 2) {
 					return;
+				}
 				int tableColumn = jTable1.columnAtPoint(e.getPoint());
 				int modelColumn = jTable1.convertColumnIndexToModel(tableColumn);
 				sorter.sort(modelColumn);
@@ -325,8 +399,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		jScrollPane = new javax.swing.JScrollPane(jTable1);
 
 		// couleur
-		TableColumn coloredColumn = jTable1.getColumnModel().getColumn(this.DESCRIPTION_COLUMN);
-		coloredColumn.setCellRenderer(new ColorRenderer(false, goColor, this));
+		TableColumn coloredColumn = jTable1.getColumnModel().getColumn(DESCRIPTION_COLUMN);
+//		coloredColumn.setCellRenderer(new ColorRenderer(false, goColor, this));
 		// suite des couleurs dans :ouseT1Handler column2;
 
 		jPanelDeBase.add(jScrollPane);
@@ -668,7 +742,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				Object[] dataTmp = new Object[6];
 				dataTmp[0] = new Boolean(false);
 				dataTmp[1] = termID;
-				dataTmp[2] = new JLabel(description);
+//				dataTmp[2] = new JLabel(description);
+				dataTmp[2] = description;
 				dataTmp[3] = smallX + "/" + bigX + " " + percentClusterFreq;
 				dataTmp[4] = smallN + "/" + bigN + " " + percentTotalFreq;
 
@@ -698,7 +773,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 						dataTmp[0] = new Boolean(false);
 						dataTmp[1] = termID;
 						dataTmp[3] = pvalue;
-						dataTmp[2] = new JLabel(description);
+//						dataTmp[2] = new JLabel(description);
+						dataTmp[2] = description;
 						dataTmp[4] = smallX + "/" + bigX + "  " + percentClusterFreq + "%";
 						dataTmp[5] = smallN + "/" + bigN + "  " + percentTotalFreq + "%";
 
@@ -729,7 +805,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 						dataTmp[0] = new Boolean(false);
 						dataTmp[1] = termID;
 						dataTmp[3] = pvalue;
-						dataTmp[2] = new JLabel(description);
+//						dataTmp[2] = new JLabel(description);
+						dataTmp[2] = description;
 						dataTmp[4] = smallX + "/" + bigX + "  " + percentClusterFreq + "%";
 						dataTmp[5] = smallN + "/" + bigN + "  " + percentTotalFreq + "%";
 
@@ -762,7 +839,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 						dataTmp[0] = new Boolean(false);
 						dataTmp[1] = termID;
 						dataTmp[3] = pvalue;
-						dataTmp[2] = new JLabel(description);
+//						dataTmp[2] = new JLabel(description);
+						dataTmp[2] = description;
 						dataTmp[4] = correctedPvalue;
 						dataTmp[5] = smallX + "/" + bigX + "  " + percentClusterFreq + "%";
 						dataTmp[6] = smallN + "/" + bigN + "  " + percentTotalFreq + "%";
@@ -798,7 +876,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 						dataTmp[0] = new Boolean(false);
 						dataTmp[1] = termID;
 						dataTmp[3] = pvalue;
-						dataTmp[2] = new JLabel(description);
+//						dataTmp[2] = new JLabel(description);
+						dataTmp[2] = description;
 						dataTmp[4] = correctedPvalue;
 						dataTmp[5] = smallX + "/" + bigX + "  " + percentClusterFreq + "%";
 						dataTmp[6] = smallN + "/" + bigN + "  " + percentTotalFreq + "%";
@@ -827,7 +906,8 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 					dataTmp[0] = new Boolean(false);
 					dataTmp[1] = termID;
 					dataTmp[3] = pvalue;
-					dataTmp[2] = new JLabel(description);
+//					dataTmp[2] = new JLabel(description);
+					dataTmp[2] = description;
 					dataTmp[4] = correctedPvalue;
 					dataTmp[5] = smallX + "/" + bigX + "  " + percentClusterFreq + "%";
 					dataTmp[6] = smallN + "/" + bigN + "  " + percentTotalFreq + "%";
@@ -878,32 +958,30 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		if (testString.equals(NONE)) {
 			header = new Object[6];
 
-			header[1] = "ID_GO";// "GO-ID"
-			header[2] = "Description";
-			header[3] = "cluster freq";
-			header[4] = "total freq";
-			header[5] = "genes";
+			header[1] = HEADER_GO_ID;
+			header[2] = HEADER_GO_DESCRIPTION;
+			header[3] = HEADER_CLUSTER_FREQUENCY;
+			header[4] = HEADER_TOTAL_FREQUENCY;
+			header[5] = HEADER_GENES;
 		} else if (correctionString.equals(NONE)) {
 			header = new Object[7];
 
-			header[1] = "GO-ID";
-			header[2] = "Description";
-			header[4] = "cluster freq";
-			header[5] = "total freq";
-			header[6] = "genes";
-			header[3] = "p-val";
+			header[1] = HEADER_GO_ID;
+			header[2] = HEADER_GO_DESCRIPTION;
+			header[3] = HEADER_P_VAL;
+			header[4] = HEADER_CLUSTER_FREQUENCY;
+			header[5] = HEADER_TOTAL_FREQUENCY;
+			header[6] = HEADER_GENES;
 		} else {
-
 			header = new Object[8];
 
-			header[1] = "GO-ID";
-
-			header[2] = "Description";
-			header[5] = "cluster freq";
-			header[6] = "total freq";
-			header[7] = "genes";
-			header[3] = "p-val";
-			header[4] = "corr p-val";
+			header[1] = HEADER_GO_ID;
+			header[2] = HEADER_GO_DESCRIPTION;
+			header[3] = HEADER_P_VAL;
+			header[4] = HEADER_CORRECTED_P_VAL;
+			header[5] = HEADER_CLUSTER_FREQUENCY;
+			header[6] = HEADER_TOTAL_FREQUENCY;
+			header[7] = HEADER_GENES;
 		}
 
 		header[0] = " ";
