@@ -270,7 +270,7 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		// ontology_Description.setBorder(javax.swing.BorderFactory.createLineBorder(Color.black));
 		// jPanelButtons.add(ontology_Description);
 		JLabel annotation_Description = new JLabel("Annotation: Curator = " + annotation.getCurator() + ", " +
-												   "Species = " + annotation.getSpecies() + ", " +
+												   "Species or file = " + annotation.getSpecies() + ", " +
 												   "Type = " + annotation.getType() + "   " +
 												   "Ontology: Curator = " + ontology.getCurator() + ", " +
 												   "Type = " + ontology.getType());
@@ -284,8 +284,17 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		jPanelDeBase.add(jPanelButtons, java.awt.BorderLayout.NORTH);
 
 		final ResultTableModel tableModel = new ResultTableModel(columnNames, data);
-		final ResultTableSortFilterModel sorter = new ResultTableSortFilterModel(tableModel);
-		jTable1 = new JTable(sorter);
+        final ResultTableSortFilterModel sortedTableModel;
+        if (testString.equals(NONE)) {
+            // data is sorted by smallX values which are in column 3
+            // in reverse (descending) order
+            sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, true);
+        } else {
+            // data is sorted by p-values which are in column 3
+            // in ascending order
+            sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, false);
+        }
+        jTable1 = new JTable(sortedTableModel);
 		jTable1.setDragEnabled(false);
 		jTable1.setCellSelectionEnabled(true);
 //		jTable1.addMouseListener(new MouseT1Handler(this));
@@ -314,7 +323,6 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				int cellWidth = comp.getPreferredSize().width;
 				column.setPreferredWidth((int) (cellWidth * 1.2));
 				column.setMaxWidth((int) (cellWidth * 1.3));
-				System.out.println(i + " = " + cellWidth);
 			}
 			if (columnNames[i].equals(HEADER_GO_DESCRIPTION)) {
 //				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 3);
@@ -332,7 +340,6 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				int width = Math.max(cellWidth, headerWidth);
 				column.setPreferredWidth((int) (width * 1.2));
 				column.setMaxWidth((int) (width * 1.3));
-				System.out.println(i + " = " + width);
 			}
 			if (columnNames[i].equals(HEADER_CORRECTED_P_VAL)) {
 //				tcModel.getColumn(i).setPreferredWidth(70);
@@ -346,7 +353,6 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				int width = Math.max(cellWidth, headerWidth);
 				column.setPreferredWidth((int) (width * 1.2));
 				column.setMaxWidth((int) (width * 1.3));
-				System.out.println(i + " = " + width);
 			}
 			if (columnNames[i].equals(HEADER_CLUSTER_FREQUENCY)) {
 //				tcModel.getColumn(i).setPreferredWidth(85);
@@ -360,7 +366,6 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				int width = Math.max(cellWidth, headerWidth);
 				column.setPreferredWidth((int) (width * 1.2));
 				column.setMaxWidth((int) (width * 1.3));
-				System.out.println(i + " = " + width);
 			}
 			if (columnNames[i].equals(HEADER_TOTAL_FREQUENCY)) {
 //				tcModel.getColumn(i).setPreferredWidth(85);
@@ -374,7 +379,6 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				int width = Math.max(cellWidth, headerWidth);
 				column.setPreferredWidth((int) (width * 1.2));
 				column.setMaxWidth((int) (width * 1.3));
-				System.out.println(i + " = " + width);
 			}
 			if (columnNames[i].equals(HEADER_GENES)) {
 //				tcModel.getColumn(i).setPreferredWidth((screenSize.width - 15 - 50 - 85 - 85 - 70 - 70 - 40) / 3);
@@ -388,7 +392,7 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 				}
 				int tableColumn = jTable1.columnAtPoint(e.getPoint());
 				int modelColumn = jTable1.convertColumnIndexToModel(tableColumn);
-				sorter.sort(modelColumn);
+				sortedTableModel.sort(modelColumn);
 			}
 		});
 		// ////////////////////////////////////////////////les environs 40

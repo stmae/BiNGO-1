@@ -30,6 +30,7 @@
 package bingo.internal.GOlorize;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
@@ -42,12 +43,13 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 	
 	private TableModel model;
 	private int sortColumn;
+	private boolean[] columnDoSortInReverseOrder;
 	private Row[] rows;
 
 	/**
 	 * Creates a new instance of ResultTableSortFilterModel
 	 */
-	public ResultTableSortFilterModel(TableModel m) {
+	public ResultTableSortFilterModel(TableModel m, int sortColumn, boolean sortColumnHasReverseOrder) {
 		model = m;
 		rows = new Row[model.getRowCount()];
 		for (int i = 0; i < rows.length; i++) {
@@ -55,11 +57,23 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 			rows[i].index = i;
 
 		}
+		this.sortColumn = sortColumn;
+		this.columnDoSortInReverseOrder = new boolean[model.getColumnCount()];
+		this.columnDoSortInReverseOrder[sortColumn] = !sortColumnHasReverseOrder;
 	}
 
 	public void sort(int c) {
-		sortColumn = c;
-		Arrays.sort(rows);
+		if (c != sortColumn) {
+			sortColumn = c;
+			columnDoSortInReverseOrder[sortColumn] = false;
+		}
+		if (columnDoSortInReverseOrder[sortColumn]) {
+			Arrays.sort(rows, Collections.reverseOrder());
+			columnDoSortInReverseOrder[sortColumn] = false;
+		} else {
+			Arrays.sort(rows);
+			columnDoSortInReverseOrder[sortColumn] = true;
+		}
 		fireTableDataChanged();
 	}
 
@@ -123,7 +137,7 @@ public class ResultTableSortFilterModel extends AbstractTableModel {
 				return new Integer((String) a).compareTo(new Integer((String) b));
 			}
 			if (model.getColumnName(sortColumn).equals(ResultPanel.HEADER_GO_DESCRIPTION)) {
-				return ((String) a).compareTo((String) b);
+				return ((String) a).compareToIgnoreCase((String) b);
 //				return ((Comparable) ((JLabel) a).getText()).compareTo(((JLabel) b).getText());
 			}
 
