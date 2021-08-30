@@ -1013,14 +1013,14 @@ public class SettingsPanelActionListener implements ActionListener {
 		if (params.getOntologyFile() == null) {
 			params.setOntologyFile("Cytoscape loaded ontology: " + params.getOntology().toString());
 		}
-
-		goBin.createResultTab(testMap, correctionMap, mapSmallX, mapSmallN, mapBigX, mapBigN, params.getSignificance()
+                if (!testMap.isEmpty()) {
+                        goBin.createResultTab(testMap, correctionMap, mapSmallX, mapSmallN, mapBigX, mapBigN, params.getSignificance()
 				.toString(), params.getAnnotation(), params.getAlias(), params.getOntology(), params
 				.getAnnotationFile().toString(), params.getOntologyFile().toString(), params.getTest() + "",
 				params.getCorrection() + "", params.getOverOrUnder() + "", params.getFileoutput_dir(),
 				params.getCluster_name() + ".bgo", params.getReferenceSet() + "", params.getCategory() + "",
 				selectedNodes, startNetwork, startNetworkView);
-
+                }
 		if (params.isFileoutput()) {
 			file = new CreateBiNGOFile(testMap, correctionMap, mapSmallX, mapSmallN, mapBigX, mapBigN, params
 					.getSignificance().toString(), params.getAnnotation(), params.getDeleteCodes(), params.getAlias(),

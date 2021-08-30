@@ -256,7 +256,7 @@ public class CreateBiNGOFile {
 			BufferedWriter output = new BufferedWriter(new FileWriter(results));
 			System.out.println("bingo results file : " + results.getPath());
 			// try{
-			output.write("File created with bingo (c) on " + dateString + " at " + timeString + "\n");
+			output.write("File created with BiNGO v3.0.5  (c) on " + dateString + " at " + timeString + "\n");
 			output.write("\n");
 			output.write(ontology.toString());
 			output.write("\n");

@@ -100,7 +100,7 @@ public class BenjaminiHochbergFDR extends CalculateCorrectionTask {
 
 	// Keep track of progress for monitoring:
 
-	private int maxValue;
+//	private int maxValue;
 
 	/*--------------------------------------------------------------
 	CONSTRUCTOR.
@@ -135,7 +135,7 @@ public class BenjaminiHochbergFDR extends CalculateCorrectionTask {
 		this.adjustedPvalues = new String[m];
 		this.correctionMap = null;
 
-		this.maxValue = pvalues.length;
+//		this.maxValue = pvalues.length;
 	}
 	
 	public BenjaminiHochbergFDR(Map golabelstopvalues, String alpha, TaskMonitor taskMonitor) {

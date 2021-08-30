@@ -282,26 +282,26 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		jPanelButtons.add(jCloseButton);
 
 		jPanelDeBase.add(jPanelButtons, java.awt.BorderLayout.NORTH);
-
-		final ResultTableModel tableModel = new ResultTableModel(columnNames, data);
-        final ResultTableSortFilterModel sortedTableModel;
-        if (testString.equals(NONE)) {
-            // data is sorted by smallX values which are in column 3
-            // in reverse (descending) order
-            sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, true);
-        } else {
-            // data is sorted by p-values which are in column 3
-            // in ascending order
-            sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, false);
-        }
-        jTable1 = new JTable(sortedTableModel);
-		jTable1.setDragEnabled(false);
-		jTable1.setCellSelectionEnabled(true);
-//		jTable1.addMouseListener(new MouseT1Handler(this));
-//		jTable1.addMouseMotionListener(new MouseMotionT1Handler());
-		TableCellRenderer headerRenderer = jTable1.getTableHeader().getDefaultRenderer();
-		TableColumnModel tcModel = jTable1.getColumnModel();
-		for (int i = 0; i < columnNames.length; i++) {
+                if(!(data.length == 0)){
+                    final ResultTableModel tableModel = new ResultTableModel(columnNames, data);
+                    final ResultTableSortFilterModel sortedTableModel;
+                    if (testString.equals(NONE)) {
+                        // data is sorted by smallX values which are in column 3
+                        // in reverse (descending) order
+                        sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, true);
+                    } else {
+                        // data is sorted by p-values which are in column 3
+                        // in ascending order
+                        sortedTableModel = new ResultTableSortFilterModel(tableModel, 3, false);
+                    }
+                    jTable1 = new JTable(sortedTableModel);
+                    jTable1.setDragEnabled(false);
+                    jTable1.setCellSelectionEnabled(true);
+//                  jTable1.addMouseListener(new MouseT1Handler(this));
+//                  jTable1.addMouseMotionListener(new MouseMotionT1Handler());
+                    TableCellRenderer headerRenderer = jTable1.getTableHeader().getDefaultRenderer();
+                    TableColumnModel tcModel = jTable1.getColumnModel();
+                    for (int i = 0; i < columnNames.length; i++) {
 			final TableColumn column = tcModel.getColumn(i);
 			if (columnNames[i].equals(" ")) {
 				// check box column (1st column)
@@ -408,106 +408,109 @@ public class ResultPanel extends JPanel implements ResultAndStartPanel {
 		// suite des couleurs dans :ouseT1Handler column2;
 
 		jPanelDeBase.add(jScrollPane);
+            
 
-		// ////////a faire : utiliser le meme listener pour tout les tabs
-		// displayPieChartListener = new DisplayPieChart2(this,
-		// this.goBin.getNetwork_Options());
+                // ////////a faire : utiliser le meme listener pour tout les tabs
+                // displayPieChartListener = new DisplayPieChart2(this,
+                // this.goBin.getNetwork_Options());
 
-		JPanel jPanelApplyButtons = new JPanel();
-		GridBagLayout blayout = new GridBagLayout();
-		GridBagConstraints constr = new GridBagConstraints();
-		jPanelApplyButtons.setLayout(blayout);
-		constr.weightx = 0;
+                JPanel jPanelApplyButtons = new JPanel();
+                GridBagLayout blayout = new GridBagLayout();
+                GridBagConstraints constr = new GridBagConstraints();
+                jPanelApplyButtons.setLayout(blayout);
+                constr.weightx = 0;
 
-		JButton selectAllButton = new JButton();
-		selectAllButton.setText("Select All");
-		selectAllButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selectAll();
-			}
-		});
-		jPanelApplyButtons.add(selectAllButton, constr);
-		constr.weightx = 100;
-		constr.anchor = constr.WEST;
+                JButton selectAllButton = new JButton();
+                selectAllButton.setText("Select All");
+                selectAllButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        selectAll();
+                    }
+                });
+                jPanelApplyButtons.add(selectAllButton, constr);
+                constr.weightx = 100;
+                constr.anchor = constr.WEST;
 
-		JButton unSelectAllButton = new JButton();
-		unSelectAllButton.setText("Unselect All");
-		unSelectAllButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				unselectAll();
-			}
-		});
-		jPanelApplyButtons.add(unSelectAllButton, constr);
+                JButton unSelectAllButton = new JButton();
+                unSelectAllButton.setText("Unselect All");
+                unSelectAllButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        	unselectAll();
+                    }
+                });
+                jPanelApplyButtons.add(unSelectAllButton, constr);
 
-		/*
-		 * jButton1 = new JButton(); jButton1.setText("Validate");
-		 * jButton1.addActionListener(displayPieChartListener); ////// 1
-		 * constr.weightx=0; jPanelApplyButtons.add(jButton1,constr);
-		 */
+                /*
+                * jButton1 = new JButton(); jButton1.setText("Validate");
+                * jButton1.addActionListener(displayPieChartListener); ////// 1
+                * constr.weightx=0; jPanelApplyButtons.add(jButton1,constr);
+                */
 
-		// jButton2 = new JButton();
-		// jButton2.setText("Recalculate");
-		// jButton2.addActionListener(displayPieChartListener);
-		// jPanelApplyButtons.add(jButton2);
+                // jButton2 = new JButton();
+                // jButton2.setText("Recalculate");
+                // jButton2.addActionListener(displayPieChartListener);
+                // jPanelApplyButtons.add(jButton2);
 
-		/*
-		 * jButton3 = new JButton(); jButton3.setText("Reset");
-		 * jButton3.addActionListener(displayPieChartListener);
-		 * jPanelApplyButtons.add(jButton3,constr);
-		 */
+                /*
+                * jButton3 = new JButton(); jButton3.setText("Reset");
+                * jButton3.addActionListener(displayPieChartListener);
+                * jPanelApplyButtons.add(jButton3,constr);
+                */
 
-		constr.weightx = 100;
-		constr.anchor = constr.EAST;
-		JButton jButton4 = new JButton("Select nodes");
-		jButton4.addActionListener(new ZSelectNodes((ResultAndStartPanel) this, adapter));
-		jPanelApplyButtons.add(jButton4, constr);
+                constr.weightx = 100;
+                constr.anchor = constr.EAST;
+                JButton jButton4 = new JButton("Select nodes");
+                jButton4.addActionListener(new ZSelectNodes((ResultAndStartPanel) this, adapter));
+                jPanelApplyButtons.add(jButton4, constr);
 
-		jPanelDeBase.add(jPanelApplyButtons, java.awt.BorderLayout.SOUTH);
+                jPanelDeBase.add(jPanelApplyButtons, java.awt.BorderLayout.SOUTH);
 
-		// jPanelApplyButtons.add(new
-		// JLabel("WeightGo"),java.awt.BorderLayout.SOUTH);
-		// final JTextField jTextWeightGo = new JTextField(5);
-		// jPanelApplyButtons.add(jTextWeightGo);
+                // jPanelApplyButtons.add(new
+                // JLabel("WeightGo"),java.awt.BorderLayout.SOUTH);
+                // final JTextField jTextWeightGo = new JTextField(5);
+                // jPanelApplyButtons.add(jTextWeightGo);
 
-		// jPanelApplyButtons.add(new
-		// JLabel("krep"),java.awt.BorderLayout.SOUTH);
-		// final JTextField jTextKrep = new JTextField(5);
+                // jPanelApplyButtons.add(new
+                // JLabel("krep"),java.awt.BorderLayout.SOUTH);
+                // final JTextField jTextKrep = new JTextField(5);
 
-		// jPanelApplyButtons.add(jTextKrep);
-		// jPanelApplyButtons.add(new
-		// JLabel("katt"),java.awt.BorderLayout.SOUTH);
-		// final JTextField jTextKatt = new JTextField(5);
-		// jPanelApplyButtons.add(jTextKatt);
-		// jPanelApplyButtons.add(new JLabel("Iterations"));
-		// final JTextField jTextK = new JTextField(5);
-		// jPanelApplyButtons.add(jTextK);
-		// jPanelApplyButtons.add(new JLabel("Temperature"));
-		// final JTextField jTextL = new JTextField(5);
-		// jPanelApplyButtons.add(jTextL);
-		// JButton jButton5 = new JButton("Layout");
-		// jButton5.addActionListener(new ActionListener(){
-		// public void actionPerformed(ActionEvent e){
-		// new
-		// Fruchterman(Cytoscape.getCurrentNetworkView(),jTextWeightGo.getText(),jTextKrep.getText(),jTextKatt.getText(),
-		// jTextK.getText(),jTextL.getText());
-		// }
-		// });
-		// jPanelApplyButtons.add(jButton5);
-		// JButton jButton6 = new JButton("Layout2");
-		// jButton6.addActionListener(new ActionListener(){
-		// public void actionPerformed(ActionEvent e){
-		// new
-		// FruchtermanTheEnd(Cytoscape.getCurrentNetworkView(),jTextWeightGo.getText(),jTextKrep.getText(),jTextKatt.getText(),
-		// jTextK.getText(),jTextL.getText());
-		// }
-		// });
-		// jPanelApplyButtons.add(jButton6);
-		jPanelDeBase.add(jPanelApplyButtons, java.awt.BorderLayout.SOUTH);
-
-		this.add(jPanelDeBase, java.awt.BorderLayout.CENTER);
-
-		goBin.synchroColor(this);
-		goBin.synchroSelections(this);
+                // jPanelApplyButtons.add(jTextKrep);
+                // jPanelApplyButtons.add(new
+                // JLabel("katt"),java.awt.BorderLayout.SOUTH);
+                // final JTextField jTextKatt = new JTextField(5);
+                // jPanelApplyButtons.add(jTextKatt);
+                // jPanelApplyButtons.add(new JLabel("Iterations"));
+                // final JTextField jTextK = new JTextField(5);
+                // jPanelApplyButtons.add(jTextK);
+                // jPanelApplyButtons.add(new JLabel("Temperature"));
+                // final JTextField jTextL = new JTextField(5);
+                // jPanelApplyButtons.add(jTextL);
+                // JButton jButton5 = new JButton("Layout");
+                // jButton5.addActionListener(new ActionListener(){
+                // public void actionPerformed(ActionEvent e){
+                // new
+                // Fruchterman(Cytoscape.getCurrentNetworkView(),jTextWeightGo.getText(),jTextKrep.getText(),jTextKatt.getText(),
+                // jTextK.getText(),jTextL.getText());
+                // }
+                // });
+                // jPanelApplyButtons.add(jButton5);
+                // JButton jButton6 = new JButton("Layout2");
+                // jButton6.addActionListener(new ActionListener(){
+                // public void actionPerformed(ActionEvent e){
+                // new
+                // FruchtermanTheEnd(Cytoscape.getCurrentNetworkView(),jTextWeightGo.getText(),jTextKrep.getText(),jTextKatt.getText(),
+                // jTextK.getText(),jTextL.getText());
+                // }
+                // });
+                // jPanelApplyButtons.add(jButton6);
+                jPanelDeBase.add(jPanelApplyButtons, java.awt.BorderLayout.SOUTH);
+            }
+                this.add(jPanelDeBase, java.awt.BorderLayout.CENTER);
+                
+            if(!(data.length == 0)){
+                goBin.synchroColor(this);
+                goBin.synchroSelections(this);
+            }
 
 	}
 

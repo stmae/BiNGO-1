@@ -97,7 +97,7 @@ public class Bonferroni extends CalculateCorrectionTask {
 	private static final int RESULT_SCALE = 100;
 	// Keep track of progress for monitoring:
 
-	private int maxValue;
+//	private int maxValue;
 
 	/*--------------------------------------------------------------
 	CONSTRUCTOR.
@@ -131,7 +131,7 @@ public class Bonferroni extends CalculateCorrectionTask {
 		this.m = pvalues.length;
 		this.adjustedPvalues = new String[m];
 		this.correctionMap = null;
-		this.maxValue = pvalues.length;
+//		this.maxValue = pvalues.length;
 
 	}
 

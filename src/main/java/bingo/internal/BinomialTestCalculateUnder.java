@@ -80,7 +80,7 @@ public class BinomialTestCalculateUnder extends CalculateTestTask {
 	private static Map binomialTestMap;
 
 	// Keep track of progress for monitoring:
-	private int maxValue;
+//	private int maxValue;
 
 	/**
 	 * constructor with as arguments the selected cluster, the reference set
@@ -97,7 +97,7 @@ public class BinomialTestCalculateUnder extends CalculateTestTask {
 		this.mapSmallX = dc.getMapSmallX();
 		this.mapBigN = dc.getMapBigN();
 		this.mapBigX = dc.getMapBigX();
-		this.maxValue = mapSmallX.size();
+//		this.maxValue = mapSmallX.size();
 	}
 	
 	public BinomialTestCalculateUnder(DistributionCount dc, TaskMonitor taskMonitor) {
@@ -123,7 +123,7 @@ public class BinomialTestCalculateUnder extends CalculateTestTask {
 		Integer smallNvalue;
 		Integer bigXvalue;
 		Integer bigNvalue;
-		int currentProgress = 0;
+//		int currentProgress = 0;
 		while (iterator.hasNext()) {
 			id = new Integer(iterator.next().toString());
 			smallXvalue = new Integer(mapSmallX.get(id).toString());
@@ -135,16 +135,16 @@ public class BinomialTestCalculateUnder extends CalculateTestTask {
 			binomialTestMap.put(id, bt.calculateBinomialDistribution());
 
 			// Calculate Percentage. This must be a value between 0..1.
-			int percentComplete = (int) (((double) currentProgress / maxValue));
+//			int percentComplete = (int) (((double) currentProgress / maxValue));
 
 			// Update the Task Monitor.
 			// This automatically updates the UI Component w/ progress bar.
-			if (taskMonitor != null) {
+/*			if (taskMonitor != null) {
 				taskMonitor.setProgress(percentComplete);
 				taskMonitor.setStatusMessage("Calculating Binomial P-value: " + currentProgress + " of " + maxValue);
 			}
-
-			currentProgress++;
+*/
+//			currentProgress++;
 
 			if (cancelled)
 				throw new InterruptedException("Binomial P-value calculation cancelled");

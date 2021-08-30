@@ -63,6 +63,7 @@ public class AnnotationParser extends BingoTask {
 	private enum AnnotationFileType {
 		GAF_2_0,
 		GAF_2_1,
+                GAF_2_2,
 		GAF_UNKNOWN_VERSION,
 		GAF_UNSUPPORTED_VERSION,
 		GENE_ASSOCIATION_FILE,
@@ -264,9 +265,9 @@ public class AnnotationParser extends BingoTask {
                 taskMonitor.setStatusMessage(warningMessage);
 				// intended fall through
 			case GAF_2_0:				// intended fall through
-			case GAF_2_1:				// intended fall through
+			case GAF_2_1:				// intended fall through   
 			case GENE_ASSOCIATION_FILE:
-				// GO Consortium annotation files (GAF or older gene association file)
+				// GO Consortium annotation files (GAF 2.1 or older gene association file)
 				try {
 					BiNGOConsortiumAnnotationReader readerAnnotation = new BiNGOConsortiumAnnotationReader(filePath,
 							synonymHash, params, "Consortium", "GO");
@@ -284,7 +285,25 @@ public class AnnotationParser extends BingoTask {
 										"file could not be read or parsed.", e);
 				}
 				break;
-
+                        case GAF_2_2:				
+                                // GO Consortium annotation files (GAF 2.2)
+				try {
+					BiNGOGaf22Reader readerAnnotation = new BiNGOGaf22Reader(filePath,
+							synonymHash, params, "Consortium", "GO");
+					annotation = readerAnnotation.getAnnotation();
+					if (readerAnnotation.getOrphans()) {
+						orphansFound = true;
+					}
+					if (readerAnnotation.getConsistency()) {
+						annotationConsistent = true;
+					}
+					alias = readerAnnotation.getAlias();
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new Exception("Could not load annotation file " + filePath + ":\n" +
+										"file could not be read or parsed.", e);
+				}
+				break;                            
 			case FLAT_FILE:
 				// flat file reader for custom annotation
 				try {
@@ -346,6 +365,9 @@ public class AnnotationParser extends BingoTask {
 					} else if (currentLine.startsWith("!gaf-version: 2.1")) {
 						taskMonitor.setStatusMessage("GAF 2.1 file detected: " + currentLine);
 						return AnnotationFileType.GAF_2_1;
+                                        } else if (currentLine.startsWith("!gaf-version: 2.2")) {
+						taskMonitor.setStatusMessage("GAF 2.2 file detected: " + currentLine);
+						return AnnotationFileType.GAF_2_2;
 					} else if (currentLine.startsWith("!gaf-version: ")) {
 						// we do not support old or future versions by default
 						taskMonitor.setStatusMessage("GAF file with unsupported version detected: " + currentLine);
@@ -400,7 +422,7 @@ public class AnnotationParser extends BingoTask {
 				orphansFound = true;
 			}
 			if (readerAnnotation.getConsistency()) {
-                annotationConsistent = true;
+                            annotationConsistent = true;
 			}
 			alias = readerAnnotation.getAlias();
 		} catch (Exception e) {

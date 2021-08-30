@@ -83,7 +83,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 	private static Map<Integer, String> hypergeometricTestMap;
 
 	// Keep track of progress for monitoring:
-	private int maxValue;
+//	private int maxValue;
 
 	/**
 	 * constructor with as argument the selected cluster and the annotation,
@@ -95,7 +95,7 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 		mapSmallX = dc.getMapSmallX();
 		mapBigN = dc.getMapBigN();
 		mapBigX = dc.getMapBigX();
-		this.maxValue = mapSmallX.size();
+//		this.maxValue = mapSmallX.size();
 
 	}
 	
@@ -123,19 +123,20 @@ public class HypergeometricTestCalculateUnder extends CalculateTestTask {
 		Integer smallNvalue;
 		Integer bigXvalue;
 		Integer bigNvalue;
-		int onePercentOfMaxValue = maxValue / 100;
-		int currentProgress = 0;
+	//	int onePercentOfMaxValue = maxValue / 100;
+	//	int currentProgress = 0;
 		while (iterator.hasNext()) {
-			currentProgress++;
+	//		currentProgress++;
 			// Update the Task Monitor.
 			// This automatically updates the UI Component w/ progress bar.
-			if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+	/*		if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
 				taskMonitor.setStatusMessage("calculating hypergeometric p-value " + currentProgress + " of "
 											 + maxValue);
 				// Calculate percentage, must be a value between 0..1.
 				double percentComplete = (double) currentProgress / maxValue;
 				taskMonitor.setProgress(percentComplete);
 			}
+        */                
 
 			id = new Integer(iterator.next().toString());
 			smallXvalue = new Integer(mapSmallX.get(id).toString());
