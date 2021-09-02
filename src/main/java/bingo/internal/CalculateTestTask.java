@@ -45,14 +45,14 @@ import java.util.Map;
 public abstract class CalculateTestTask extends BingoTask {
 
 	// implement for statistical tests
-	abstract Map<Integer, String> getTestMap();
+	public abstract Map<Integer, String> getTestMap();
 
-	abstract Map getMapSmallX();
+	public abstract Map getMapSmallX();
 
-	abstract Map getMapSmallN();
+	public abstract Map getMapSmallN();
 
-	abstract Map getMapBigX();
+	public abstract Map getMapBigX();
 
-	abstract Map getMapBigN();
+	public abstract Map getMapBigN();
 	
 }

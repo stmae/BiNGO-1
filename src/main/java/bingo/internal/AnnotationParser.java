@@ -112,7 +112,7 @@ public class AnnotationParser extends BingoTask {
 	private String warningMessage = "";
 
 	// Keep track of progress for monitoring:
-	private int maxValue;
+	//private int maxValue;
 
 	private Set<Integer> parentsSet;
 
@@ -126,7 +126,7 @@ public class AnnotationParser extends BingoTask {
 		this.functionGoPath = openResourceFile("GO_Molecular_Function");
 		this.componentGoPath = openResourceFile("GO_Cellular_Component");
 
-		this.maxValue = -1;
+	//	this.maxValue = -1;
 	}
 	
 	public AnnotationParser(BingoParameters params, HashSet<String> genes, TaskMonitor taskMonitor) {
@@ -154,9 +154,10 @@ public class AnnotationParser extends BingoTask {
         if (params.isOntology_default()) {
             // load full ontology for full remap to GOSlim ontologies, and for
             // defining synonymHash
+            System.out.println("parsing default ontology");
             loadFullOntology();
 
-			loadDefaultOntology();
+                        loadDefaultOntology();
 
 			loadAnnotation();
 
@@ -178,6 +179,7 @@ public class AnnotationParser extends BingoTask {
         } else {
             // always perform full remap for .obo files, allows definition of
             // custom GOSlims
+            System.out.println("parsing custom ontology");
             if (params.getOntologyFile().toLowerCase().endsWith(".obo")) {
                 loadFullOntology();
             }
@@ -572,19 +574,20 @@ public class AnnotationParser extends BingoTask {
 
         HashMap annMap = annotation.getMap();
         Iterator it = annMap.keySet().iterator();
-        maxValue = annMap.keySet().size();
-        int onePercentOfMaxValue = maxValue / 100;
-        int currentProgress = 0;
+        //maxValue = annMap.keySet().size();
+        //int onePercentOfMaxValue = maxValue / 100;
+        //int currentProgress = 0;
         while (it.hasNext()) {
-            currentProgress++;
+            //currentProgress++;
             // Update the Task Monitor.
             // This automatically updates the UI Component w/ progress bar.
-            if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+            /*if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
                 taskMonitor.setStatusMessage("remapping " + currentProgress + " of " + maxValue);
                 // Calculate percentage, must be a value between 0..1.
                 double percentComplete = (double) currentProgress / maxValue;
                 taskMonitor.setProgress(percentComplete);
             }
+            */
 
 			parentsSet = new HashSet<>();
 			String node = it.next() + "";
@@ -636,19 +639,19 @@ public class AnnotationParser extends BingoTask {
                                                      annotation.getCurator());
         HashMap annMap = annotation.getMap();
         Iterator it = annMap.keySet().iterator();
-        maxValue = annMap.keySet().size();
-        int onePercentOfMaxValue = maxValue / 100;
-        int currentProgress = 0;
+        //maxValue = annMap.keySet().size();
+        //int onePercentOfMaxValue = maxValue / 100;
+        //int currentProgress = 0;
         while (it.hasNext()) {
-            currentProgress++;
+            //currentProgress++;
             // Update the Task Monitor.
             // This automatically updates the UI Component w/ progress bar.
-            if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
+            /*if (taskMonitor != null && (currentProgress == 1 || currentProgress % onePercentOfMaxValue == 0)) {
                 taskMonitor.setStatusMessage("custom remapping " + currentProgress + " of " + maxValue);
                 // Calculate percentage, must be a value between 0..1.
                 double percentComplete = (double) currentProgress / maxValue;
                 taskMonitor.setProgress(percentComplete);
-            }
+            }*/
 
 			parentsSet = new HashSet<>();
 			String node = it.next() + "";

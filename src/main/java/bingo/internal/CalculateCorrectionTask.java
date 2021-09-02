@@ -44,12 +44,12 @@ import java.util.Map;
 
 public abstract class CalculateCorrectionTask extends BingoTask {
 
-	abstract String[] getOrdenedPvalues();
+	public abstract String[] getOrdenedPvalues();
 
-	abstract String[] getAdjustedPvalues();
+	public abstract String[] getAdjustedPvalues();
 
-	abstract String[] getOrdenedGOLabels();
+	public abstract String[] getOrdenedGOLabels();
 
-	abstract Map getCorrectionMap();
+	public abstract Map getCorrectionMap();
 	
 }
